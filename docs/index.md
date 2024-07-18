@@ -11,3 +11,4 @@ Documentation:
   - [Link Resolution](./features/link_resolution.md)
   - [Account Management](./features/account_management.md)
   - [Identifier Management](./features/identifier_management.md)
+  - [physical data model](data_model.md)
