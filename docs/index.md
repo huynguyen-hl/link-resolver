@@ -6,7 +6,7 @@ This service:
 * supports a superset functionality per GS1 Link Resolver
 
 Documentation:
-* Requirements
+
   - [Personas](./personas.md)
   - [Link Resolution](./features/link_resolution.md)
   - [Account Management](./features/account_management.md)
