@@ -7,6 +7,7 @@ This service:
 
 Documentation:
 * Requirements
-  - [Personas](./requirements/personas.md)
-  - [Link Resolution](./requirements/link_resolution.md)
-* [Architecture](./architecture.md)
+  - [Personas](./personas.md)
+  - [Link Resolution](./features/link_resolution.md)
+  - [Account Management](./features/account_management.md)
+  - [Identifier Management](./features/identifier_management.md)
