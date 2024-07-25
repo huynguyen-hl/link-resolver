@@ -1,0 +1,9 @@
+{
+  "isNotEmpty": "{property} should not be empty",
+  "isString": "{property} must be a string",
+  "isNumber": "{property} must be a number",
+  "isIn": "{property} is not in the list of allowed values",
+  "isObject": "{property} must be an object",
+  "invalid_key_type": "Identification key type '{key}' is not registered with the namespace '{namespace}'",
+  "cannot_resolve_link": "Cannot resolve link resolver"
+}
