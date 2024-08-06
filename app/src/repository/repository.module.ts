@@ -1,5 +1,8 @@
-import { DynamicModule, Module } from '@nestjs/common';
-import { RepositoryModuleOptions } from './interfaces/repository-options.interface';
+import { DynamicModule, Global, Module, Provider } from '@nestjs/common';
+import {
+  RepositoryModuleOptions,
+  RepositoryProvider,
+} from './interfaces/repository-options.interface';
 import { MinioModule } from './providers/minio/minio.module';
 import { MinioProvider } from './providers/minio/minio.provider';
 
@@ -35,11 +38,18 @@ import { MinioProvider } from './providers/minio/minio.provider';
  *   @Inject('RepositoryProvider')
  *   private readonly repositoryProvider: IRepositoryProvider,
  *  ) {}
+ *
+ *  async example(): Promise<void> {
+ *    await this.repositoryProvider.save({ id: '1', test: 'Hello World!' });
+ *    const data = await this.repositoryProvider.one('1');
+ *    const allData = await this.repositoryProvider.all('category');
+ *    await this.repositoryProvider.delete('1');
+ *  }
  * }
  * ```
  *
  */
-
+@Global()
 @Module({})
 export class RepositoryModule {
   static forRoot(options?: RepositoryModuleOptions): DynamicModule {
@@ -47,13 +57,14 @@ export class RepositoryModule {
     const providers = [];
     const exports = [];
     switch (options?.provider) {
-      case 'minio':
+      case RepositoryProvider.Minio:
         imports.push(MinioModule.forRoot(options));
-        providers.push({
+        const minioProvider: Provider = {
           provide: 'RepositoryProvider',
           useExisting: MinioProvider,
-        });
-        exports.push('RepositoryProvider');
+        };
+        providers.push(minioProvider);
+        exports.push(minioProvider);
         break;
       default:
         throw new Error('Invalid provider');
