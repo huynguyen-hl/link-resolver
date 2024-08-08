@@ -67,10 +67,7 @@ describe('MinioProvider', () => {
   it('should retrieve all items by category', async () => {
     const category = 'users';
     jest.spyOn(minioClient, 'listObjects').mockImplementation(() => {
-      const stream = new Readable();
-      stream.push(JSON.stringify({ name: `${category}/test.json` }));
-      stream.push(null);
-      return stream;
+      return [{ name: `${category}/test.json` }] as any;
     });
 
     jest.spyOn(minioClient, 'getObject').mockImplementation(() => {
