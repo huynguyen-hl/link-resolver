@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { RepositoryModule } from './repository/repository.module';
@@ -6,6 +7,8 @@ import { RepositoryProvider } from './repository/interfaces/repository-options.i
 import { ConfigModule } from '@nestjs/config';
 import { I18nModule } from 'nestjs-i18n';
 import { i18nConfig } from './i18n/i18n.config';
+import { AuthModule } from './auth/auth.module';
+import { CustomAuthGuard } from './common/guards/auth.guard';
 
 @Module({
   imports: [
@@ -22,8 +25,15 @@ import { i18nConfig } from './i18n/i18n.config';
       bucket: process.env.MINIO_BUCKET_NAME,
     }),
     I18nModule.forRoot(i18nConfig),
+    AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: CustomAuthGuard,
+    },
+  ],
 })
 export class AppModule {}

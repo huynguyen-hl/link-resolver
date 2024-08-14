@@ -5,5 +5,6 @@
   "isIn": "{property} is not in the list of allowed values",
   "isObject": "{property} must be an object",
   "invalid_key_type": "Identification key type '{key}' is not registered with the namespace '{namespace}'",
-  "cannot_resolve_link": "Cannot resolve link resolver"
+  "cannot_resolve_link": "Cannot resolve link resolver",
+  "invalid_api_key": "Invalid API Key"
 }
