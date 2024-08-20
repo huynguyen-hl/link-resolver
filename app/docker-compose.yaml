@@ -15,12 +15,17 @@ services:
       - MINIO_SECRET_KEY=minioadmin
       - MINIO_BUCKET_NAME=idr-bucket
       - IDENTIFIER_PATH=identifiers
+      - API_KEY=test123
+      - APP_ENDPOINT=http://localhost:3000
+      - APP_NAME=IDR
+      - RESOLVER_DOMAIN=http://localhost:3000
+      - LINK_TYPE_VOC_DOMAIN=http://localhost:3000/voc
     depends_on:
       - minio
 
   minio:
     hostname: minio
-    image: quay.io/minio/minio:latest
+    image: quay.io/minio/minio:RELEASE.2024-08-17T01-24-54Z-cpuv1
     command: server /data --console-address ":9090"
     ports:
       - '9000:9000'
