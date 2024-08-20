@@ -4,10 +4,7 @@ on:
   pull_request:
     branches:
       - next
-  push:
-    branches:
       - master
-      - next
 
 jobs:
   test_build:
