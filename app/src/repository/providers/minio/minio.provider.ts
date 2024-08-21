@@ -21,11 +21,12 @@ export class MinioProvider implements IRepositoryProvider {
     const metaData = {
       'Content-Type': 'application/json',
     };
+    const id = data.id.endsWith('.json') ? data.id : `${data.id}.json`;
     const stringifiedData = JSON.stringify(data);
 
     await this.minioClient.putObject(
       this.options.bucket,
-      data.id,
+      id,
       stringifiedData,
       stringifiedData.length,
       metaData,
@@ -33,17 +34,22 @@ export class MinioProvider implements IRepositoryProvider {
     return;
   }
 
-  async one<T>(id: string): Promise<T> {
-    const streamReadable = await this.minioClient.getObject(
-      this.options.bucket,
-      id,
-    );
-    const chunks = [];
-    for await (const chunk of streamReadable) {
-      chunks.push(chunk);
+  async one<T>(id: string): Promise<T | undefined> {
+    try {
+      const idWithExtension = id.endsWith('.json') ? id : `${id}.json`;
+      const streamReadable = await this.minioClient.getObject(
+        this.options.bucket,
+        idWithExtension,
+      );
+      const chunks = [];
+      for await (const chunk of streamReadable) {
+        chunks.push(chunk);
+      }
+      const data = Buffer.concat(chunks);
+      return JSON.parse(data.toString());
+    } catch (error) {
+      return undefined;
     }
-    const data = Buffer.concat(chunks);
-    return JSON.parse(data.toString());
   }
 
   async all<T>(category: string): Promise<T[]> {
@@ -55,12 +61,18 @@ export class MinioProvider implements IRepositoryProvider {
 
     for await (const obj of dataStream) {
       const singleData = await this.one<T>(obj.name);
-      data.push(singleData);
+      if (singleData) {
+        data.push(singleData);
+      }
     }
     return data;
   }
 
   async delete(id: string): Promise<void> {
-    return await this.minioClient.removeObject(this.options.bucket, id);
+    const idWithExtension = id.endsWith('.json') ? id : `${id}.json`;
+    return await this.minioClient.removeObject(
+      this.options.bucket,
+      idWithExtension,
+    );
   }
 }

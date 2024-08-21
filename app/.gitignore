@@ -3,6 +3,7 @@
 /node_modules
 /build
 /minio
+/minio_data
 /documentation
 
 # Logs

@@ -32,6 +32,11 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+## API Specification
+
+For detailed information about our API endpoints, request/response formats, and authentication methods, please refer to our API documentation:
+[http://localhost:3000/api](http://localhost:3000/api)
+
 ## MinIO Configuration
 
 ### Overview
