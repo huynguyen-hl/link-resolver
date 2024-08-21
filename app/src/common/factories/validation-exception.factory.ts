@@ -24,13 +24,20 @@ export function validationExceptionFactory(errors: ValidationError[]): void {
  * @param errors - The validation errors to be formatted.
  * @returns An array of FieldError objects representing the formatted validation errors.
  */
-function formatValidationErrors(errors: ValidationError[]): FieldError[] {
+function formatValidationErrors(
+  errors: ValidationError[],
+  parentPath = '',
+): FieldError[] {
   const result = [];
   errors.forEach((error) => {
+    const currentPath = parentPath
+      ? `${parentPath}.${error.property}`
+      : error.property;
+
     if (error.constraints) {
       Object.keys(error.constraints).forEach((key) => {
         const fieldError: FieldError = {
-          field: error.property,
+          field: currentPath,
           errorProperties: {
             key: key,
             args: { property: error.property },
@@ -40,7 +47,7 @@ function formatValidationErrors(errors: ValidationError[]): FieldError[] {
       });
     }
     if (error.children && error.children.length) {
-      result.push(...formatValidationErrors(error.children));
+      result.push(...formatValidationErrors(error.children, currentPath));
     }
   });
   return result;

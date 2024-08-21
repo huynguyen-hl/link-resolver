@@ -24,7 +24,7 @@ async function bootstrap() {
     .setTitle('Link resolver API')
     .setDescription('The link resolver API description')
     .setVersion('1.0')
-    .addTag('link-resolver')
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
