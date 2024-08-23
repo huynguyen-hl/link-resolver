@@ -21,6 +21,7 @@ export const IdentifierParams = createParamDecorator(
       const query = request.query;
 
       const wildCardPath = request.params['0'] || secondaryIdentifiersPath;
+
       const negotiator = new Negotiator(request);
 
       const mimeTypes = negotiator.mediaTypes();
@@ -57,6 +58,7 @@ export const IdentifierParams = createParamDecorator(
           ianaLanguageContexts: ianaLanguageContexts,
         },
       };
+
       return parameters;
     } catch (error) {
       console.error(error);
