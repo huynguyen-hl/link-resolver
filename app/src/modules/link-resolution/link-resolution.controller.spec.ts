@@ -82,4 +82,50 @@ describe('LinkResolutionController', () => {
       resolvedLink,
     );
   });
+
+  it('should resolve a link with secondary identifiers path', async () => {
+    const mockRequest: any = {};
+    const mockResponse: any = {};
+    const resolvedLink = {
+      targetUrl: 'https://example.com',
+      data: undefined,
+      mimeType: 'text/html',
+      fwqs: false,
+    };
+
+    mockService.resolve = jest.fn().mockResolvedValue(resolvedLink);
+
+    await controller.resolveClone(
+      {
+        namespace: 'idr',
+        identifiers: {
+          primary: {
+            id: '123',
+            qualifier: '01',
+          },
+          secondaries: [
+            {
+              id: '456',
+              qualifier: '10',
+            },
+          ],
+        },
+        descriptiveAttributes: {
+          linkType: 'idr:certificationInfo',
+          ianaLanguage: 'en',
+          context: 'us',
+          mimeType: 'application/json',
+        },
+      },
+      mockRequest,
+      mockResponse,
+    );
+
+    expect(mockService.resolve).toHaveBeenCalled();
+    expect(responseResolvedLink).toHaveBeenCalledWith(
+      mockResponse,
+      mockRequest,
+      resolvedLink,
+    );
+  });
 });

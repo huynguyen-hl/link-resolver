@@ -6,6 +6,7 @@ import { LinkResolutionDto } from './dto/link-resolution.dto';
 import { responseResolvedLink } from './utils/response-link.utils';
 import {
   ApiBadRequestResponse,
+  ApiExcludeEndpoint,
   ApiFoundResponse,
   ApiNotFoundResponse,
   ApiOperation,
@@ -22,21 +23,35 @@ export class LinkResolutionController {
   constructor(private readonly linkResolutionService: LinkResolutionService) {}
 
   @Get([
-    ':namespace/:identifierKeyType/:identifierKey',
-    ':namespace/:identifierKeyType/:identifierKey/:secondaryIdentifiersPath',
+    ':namespace/:identifierKeyType/:identifierKey/:secondaryIdentifiersPath?',
   ])
   @ApiOperation({ summary: 'Resolve a link resolver for an identifier' })
-  @Public()
   @ApiTags('Link Resolution')
-  @ApiParam({ type: String, name: 'namespace' })
-  @ApiParam({ type: String, name: 'identifierKeyType' })
-  @ApiParam({ type: String, name: 'identifierKey' })
+  @ApiParam({
+    type: String,
+    name: 'namespace',
+    description: 'Namespace',
+    example: 'gs1',
+  })
+  @ApiParam({
+    type: String,
+    name: 'identifierKeyType',
+    description: 'Identifier key type',
+    example: '01',
+  })
+  @ApiParam({
+    type: String,
+    name: 'identifierKey',
+    description: 'Identifier key',
+    example: '12345678901234',
+  })
   @ApiParam({
     type: String,
     name: 'secondaryIdentifiersPath',
     required: false,
+    allowEmptyValue: true,
     description: 'Secondary identifiers path',
-    example: '10/123456',
+    example: '10/12345678901234567890',
   })
   @ApiQuery({
     name: 'linkType',
@@ -55,19 +70,35 @@ export class LinkResolutionController {
     description: 'Invalid request parameters',
     type: FieldErrorsResponse,
   })
+  @Public()
+  // The `resolveClone` method is clone of the `resolve` method to handle the Swagger API documentation, because it is not supporting the wildcard path
+  async resolveClone(
+    @IdentifierParams('identifierParams', IdentifierSetValidationPipe)
+    identifierParams: LinkResolutionDto,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    const resolvedLink =
+      await this.linkResolutionService.resolve(identifierParams);
+
+    responseResolvedLink(res, req, resolvedLink);
+  }
+
+  @Get([
+    ':namespace/:identifierKeyType/:identifierKey',
+    ':namespace/:identifierKeyType/:identifierKey/*',
+  ])
+  @ApiExcludeEndpoint()
+  @Public()
   async resolve(
     @IdentifierParams('identifierParams', IdentifierSetValidationPipe)
     identifierParams: LinkResolutionDto,
     @Req() req: Request,
     @Res() res: Response,
   ) {
-    try {
-      const resolvedLink =
-        await this.linkResolutionService.resolve(identifierParams);
+    const resolvedLink =
+      await this.linkResolutionService.resolve(identifierParams);
 
-      responseResolvedLink(res, req, resolvedLink);
-    } catch (error) {
-      console.error(error);
-    }
+    responseResolvedLink(res, req, resolvedLink);
   }
 }

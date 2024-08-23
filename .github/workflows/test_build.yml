@@ -37,7 +37,7 @@ jobs:
 
       - name: Run tests
         # run tests only on changed files and generate coverage report in JSON format
-        run: npm run test -- --changedSince=origin/master --ci --json --coverage --testLocationInResults --outputFile=report.json
+        run: npm run test -- --ci --json --coverage --testLocationInResults --outputFile=report.json
         working-directory: app
 
       - name: Coverage

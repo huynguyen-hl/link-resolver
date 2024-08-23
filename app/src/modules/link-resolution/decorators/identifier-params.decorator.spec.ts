@@ -80,6 +80,60 @@ describe('IdentifierParams', () => {
     });
   });
 
+  it('should return the identifier parameters with secondary identifiers path', () => {
+    const req = httpMock.createRequest();
+    const res = httpMock.createResponse();
+    req.params = {
+      namespace: 'idr',
+      identifierKeyType: 'gtin',
+      identifierKey: '9359502000041',
+      secondaryIdentifiersPath: '10/abc123',
+    };
+    req.query = {
+      linkType: 'idr:certificationInfo',
+    };
+    req.headers = {
+      'accept-language': 'en-US, fr;q=0.9',
+      accept: 'application/json',
+    };
+
+    const factory = getParamDecoratorFactory(LinkResolutionDto);
+    const result = factory(
+      null,
+      new ExecutionContextHost([req, res, null, null]),
+    );
+
+    expect(result).toEqual({
+      namespace: 'idr',
+      identifiers: {
+        primary: {
+          qualifier: 'gtin',
+          id: '9359502000041',
+        },
+        secondaries: [
+          {
+            qualifier: '10',
+            id: 'abc123',
+          },
+        ],
+      },
+      descriptiveAttributes: {
+        linkType: 'idr:certificationInfo',
+        mimeTypes: ['application/json'],
+        ianaLanguageContexts: [
+          {
+            ianaLanguage: 'en',
+            context: 'US',
+          },
+          {
+            ianaLanguage: 'fr',
+            context: 'xx',
+          },
+        ],
+      },
+    });
+  });
+
   it('should throw an error when the request data is invalid', () => {
     const req = httpMock.createRequest();
     const res = httpMock.createResponse();

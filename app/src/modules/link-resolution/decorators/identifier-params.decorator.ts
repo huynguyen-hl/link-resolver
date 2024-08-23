@@ -12,10 +12,15 @@ export const IdentifierParams = createParamDecorator(
   (data: unknown, ctx: ExecutionContext) => {
     try {
       const request = ctx.switchToHttp().getRequest();
-      const { namespace, identifierKeyType, identifierKey } = request.params;
+      const {
+        namespace,
+        identifierKeyType,
+        identifierKey,
+        secondaryIdentifiersPath,
+      } = request.params;
       const query = request.query;
 
-      const wildCardPath = request.params['0'];
+      const wildCardPath = request.params['0'] || secondaryIdentifiersPath;
       const negotiator = new Negotiator(request);
 
       const mimeTypes = negotiator.mediaTypes();
@@ -52,7 +57,6 @@ export const IdentifierParams = createParamDecorator(
           ianaLanguageContexts: ianaLanguageContexts,
         },
       };
-
       return parameters;
     } catch (error) {
       console.error(error);
