@@ -21,6 +21,7 @@ import { IdentifierSetValidationPipe } from '../identifier-management/pipes/iden
 import { ISO639ValidationPipe } from './pipes/iso639-validation.pipe';
 import { FieldErrorsResponse } from '../../common/dto/errors.dto';
 import { Bcp47ValidationPipe } from './pipes/bcp47-validation.pipe';
+import { LinkRegistrationTransformPipe } from './pipes/link-registration-transform.pipe';
 
 @ApiTags('Link Registration')
 @Controller('api/resolver')
@@ -58,6 +59,7 @@ export class LinkRegistrationController {
     IdentifierSetValidationPipe,
     ISO639ValidationPipe,
     Bcp47ValidationPipe,
+    LinkRegistrationTransformPipe,
   )
   async create(@Body() createLinkRegistrationDto: CreateLinkRegistrationDto) {
     return await this.linkRegistrationService.create(createLinkRegistrationDto);
