@@ -9,6 +9,7 @@ import {
 import { IdentifierManagementService } from '../identifier-management/identifier-management.service';
 import { convertAICode } from '../shared/utils/uri.utils';
 import { ConfigService } from '@nestjs/config';
+import { getObjectName } from './utils/link-registration.utils';
 
 @Injectable()
 /**
@@ -32,10 +33,18 @@ export class LinkRegistrationService {
   async create(
     payload: CreateLinkRegistrationDto,
   ): Promise<{ message: string }> {
-    const applicationIdentifiers = (
-      await this.identifierManagementService.getIdentifier(payload.namespace)
-    ).applicationIdentifiers;
+    // Get the identifier for the namespace
+    const identifier = await this.identifierManagementService.getIdentifier(
+      payload.namespace,
+    );
+    const applicationIdentifiers = identifier.applicationIdentifiers;
+    const aiCode = convertAICode(
+      payload.identificationKeyType,
+      applicationIdentifiers,
+    );
+    const objectName = getObjectName(payload, aiCode);
 
+    // Construct link set and link header text
     const resolverDomain = this.configService.get<string>('RESOLVER_DOMAIN');
     const linkTypeVocDomain = this.configService.get<string>(
       'LINK_TYPE_VOC_DOMAIN',
@@ -47,14 +56,7 @@ export class LinkRegistrationService {
     if (!linkTypeVocDomain) {
       throw new Error('Missing configuration for LINK_TYPE_VOC_DOMAIN');
     }
-
-    const aiCode = convertAICode(
-      payload.identificationKeyType,
-      applicationIdentifiers,
-    );
-
-    const objectName = this.getObjectName(payload, aiCode);
-
+      
     const linkset = constructLinkSetJson(payload, aiCode, {
       resolverDomain,
       linkTypeVocDomain,
@@ -79,20 +81,7 @@ export class LinkRegistrationService {
     return { message: translatedMessage };
   }
 
-  /**
-   * Generates the object name based on the registration payload.
-   * @param payload - The registration payload.
-   * @returns The object name.
-   */
-  private getObjectName(
-    payload: CreateLinkRegistrationDto,
-    aiCode: string,
-  ): string {
-    const path =
-      payload.qualifierPath && payload.qualifierPath !== '/'
-        ? `/${payload.namespace}/${aiCode}/${payload.identificationKey}${payload.qualifierPath}.json`
-        : `/${payload.namespace}/${aiCode}/${payload.identificationKey}.json`;
-
-    return path;
+  async one(id: string): Promise<CreateLinkRegistrationDto> {
+    return this.repositoryProvider.one(id);
   }
 }

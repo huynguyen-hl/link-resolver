@@ -29,6 +29,7 @@ import { ResponseDto } from '../../common/dto/response.dto';
 import { IdentifierExistencePipe } from './pipes/identifier-existence.pipe';
 import { IdentifierValidationPipe } from './pipes/identifier-validation.pipe';
 import { GeneralErrorException } from '../../common/exceptions/general-error.exception';
+import { IdentifierTransformPipe } from './pipes/identifier-transform.pipe';
 
 @ApiTags('Identifiers')
 @Controller('api/identifiers')
@@ -47,6 +48,7 @@ export class IdentifierManagementController {
   @Post()
   @UsePipes(
     new ValidationPipe({ whitelist: true }), // ignore extra fields
+    IdentifierTransformPipe,
     IdentifierValidationPipe,
   )
   @HttpCode(200)
