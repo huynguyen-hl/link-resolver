@@ -34,6 +34,7 @@ export class MinioModule {
     options: RepositoryModuleOptions,
   ) {
     const minioClient = new Minio.Client({
+      region: options.region,
       endPoint: options.endPoint,
       port: options.port,
       useSSL: options.useSSL,
