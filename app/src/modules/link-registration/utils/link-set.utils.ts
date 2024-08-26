@@ -71,7 +71,10 @@ const constructLinkTargetObjects = (
   const sortedResponses = postprocessResponses(responses);
 
   //   Group responses by linkType
-  const groupedResponses = _.groupBy(sortedResponses, (res) => res.linkType);
+  const groupedResponses = _.groupBy(
+    sortedResponses,
+    (res) => res.linkType,
+  ) as Record<string, Response[]>;
 
   return Object.values(groupedResponses).reduce((acc, responses) => {
     const response = responses[0];
@@ -90,7 +93,7 @@ const constructLinkTargetObjects = (
 
     // Construct the link target objects
     Object.values(groupResponsesByMimeTypeTargetUrlAndContext).map(
-      (groupedResponses) => {
+      (groupedResponses: any) => {
         const firstGroupedResponse = groupedResponses[0];
         const href = firstGroupedResponse.targetUrl;
         const type =
