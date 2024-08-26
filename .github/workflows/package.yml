@@ -46,10 +46,10 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push Release
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v5
         with:
           push: ${{ startsWith(github.ref, 'refs/tags/') }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           context: app
-          file: Dockerfile.serverless
+          file: app/Dockerfile.serverless
