@@ -54,6 +54,7 @@ describe('LinkRegistrationTransformPipe', () => {
         .spyOn(identifierManagementService, 'getIdentifier')
         .mockResolvedValue({
           namespace: 'testNamespace',
+
           applicationIdentifiers: [
             {
               ai: '01',

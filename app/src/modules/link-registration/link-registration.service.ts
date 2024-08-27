@@ -56,12 +56,10 @@ export class LinkRegistrationService {
     if (!linkTypeVocDomain) {
       throw new Error('Missing configuration for LINK_TYPE_VOC_DOMAIN');
     }
-
     const linkset = constructLinkSetJson(payload, aiCode, {
       resolverDomain,
       linkTypeVocDomain,
     });
-
     const linkHeaderText = constructHTTPLink(payload, aiCode, {
       resolverDomain,
       linkTypeVocDomain,

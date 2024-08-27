@@ -88,6 +88,24 @@ export class NamespaceDto {
   @IsString()
   @IsNotEmpty()
   namespace: string;
+
+  @ApiProperty({
+    description: 'The namespace URI of the identifier',
+    example: '',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  namespaceURI?: string;
+
+  @ApiProperty({
+    description: 'The namespace profile of the identifier',
+    example: '',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  namespaceProfile?: string;
 }
 
 export class IdentifierDto extends NamespaceDto {

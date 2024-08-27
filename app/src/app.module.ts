@@ -13,7 +13,7 @@ import { LinkResolutionModule } from './modules/link-resolution/link-resolution.
 import { SharedModule } from './modules/shared/shared.module';
 import { AuthModule } from './auth/auth.module';
 import { CustomAuthGuard } from './common/guards/auth.guard';
-
+import { CommonModule } from './modules/common/common.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -37,6 +37,7 @@ import { CustomAuthGuard } from './common/guards/auth.guard';
     LinkRegistrationModule,
     LinkResolutionModule,
     AuthModule,
+    CommonModule,
   ],
   controllers: [AppController],
   providers: [

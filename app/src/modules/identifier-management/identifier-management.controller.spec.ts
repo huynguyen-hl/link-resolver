@@ -99,6 +99,35 @@ describe('IdentifierManagementController', () => {
       });
     });
 
+    it('should call service.upsertIdentifier with the namespaceURI and namespaceProfile', async () => {
+      const identifierDto: IdentifierDto = {
+        namespace: 'test-namespace',
+        namespaceURI: 'http://gs1.org/voc/',
+        namespaceProfile: 'https://www.gs1.org/voc/?show=linktypes',
+        applicationIdentifiers: [
+          {
+            ai: '01',
+            shortcode: 'A1',
+            type: 'I',
+            title: 'Title1',
+            label: 'Label1',
+            regex: '^\\d+$',
+          },
+        ],
+      };
+
+      mockIdentifierManagementService.upsertIdentifier.mockResolvedValue(
+        undefined,
+      );
+
+      const result = await controller.upsertIdentifier(identifierDto);
+
+      expect(service.upsertIdentifier).toHaveBeenCalledWith(identifierDto);
+      expect(result).toEqual({
+        message: 'Application identifier upserted successfully',
+      });
+    });
+
     it('should handle service errors', async () => {
       const identifierDto: IdentifierDto = {
         namespace: 'test-namespace',

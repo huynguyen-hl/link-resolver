@@ -82,6 +82,7 @@ describe('IdentifierManagementService', () => {
       expect(repositoryProvider.save).toHaveBeenCalledWith({
         id: `${IDENTIFIER_PATH}/test`,
         namespace: 'test',
+
         applicationIdentifiers: [
           {
             title: 'a',

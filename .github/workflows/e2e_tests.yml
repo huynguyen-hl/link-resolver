@@ -22,6 +22,7 @@ jobs:
       MINIO_BUCKET_NAME: ${{ vars.MINIO_BUCKET_NAME }}
       IDENTIFIER_PATH: ${{ vars.IDENTIFIER_PATH }}
       API_KEY: ${{ secrets.API_KEY }}
+      APP_NAME: ${{ vars.APP_NAME }}
 
     steps:
       - name: Checkout

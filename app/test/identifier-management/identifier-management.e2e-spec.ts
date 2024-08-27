@@ -14,6 +14,7 @@ describe('IdentifierManagementController (e2e)', () => {
     it('should create list of application identifiers for the namespace successfully', async () => {
       const identifierDto: IdentifierDto = {
         namespace: gs1,
+
         applicationIdentifiers: [
           {
             ai: '01',
@@ -70,7 +71,7 @@ describe('IdentifierManagementController (e2e)', () => {
         .expect(HttpStatus.OK);
       expect(response.body).toMatchObject(identifierDto);
 
-      // Cleanup
+      // Cleanup;
       await request(baseUrl)
         .delete('/api/identifiers')
         .set('Authorization', `Bearer ${process.env.API_KEY}`)
@@ -80,10 +81,12 @@ describe('IdentifierManagementController (e2e)', () => {
     it('should create list of application identifiers for the existing namespace successfully', async () => {
       const identifierDtoEmpty: IdentifierDto = {
         namespace: 'gs1',
+
         applicationIdentifiers: [],
       };
       const identifierDto: IdentifierDto = {
         namespace: gs1,
+
         applicationIdentifiers: [
           {
             ai: '01',
@@ -153,6 +156,7 @@ describe('IdentifierManagementController (e2e)', () => {
     it('should override list of application identifiers for the namespace with existing application identifiers', async () => {
       const initialDto: IdentifierDto = {
         namespace: gs1,
+
         applicationIdentifiers: [
           {
             ai: '01',
@@ -167,6 +171,7 @@ describe('IdentifierManagementController (e2e)', () => {
       };
       const overrideDto: IdentifierDto = {
         namespace: gs1,
+
         applicationIdentifiers: [
           {
             ai: '01',
@@ -236,6 +241,7 @@ describe('IdentifierManagementController (e2e)', () => {
     it('should successfully create a list of application identifiers without extra fields when the request payload contains extra fields', async () => {
       const identifierDto: IdentifierDto = {
         namespace: gs1,
+
         applicationIdentifiers: [
           {
             ai: '01',
@@ -310,6 +316,7 @@ describe('IdentifierManagementController (e2e)', () => {
     it('should not create list of application identifiers with missing required fields', async () => {
       const identifierDto = {
         namespace: gs1,
+
         applicationIdentifiers: [
           {
             ai: '01',
@@ -372,6 +379,7 @@ describe('IdentifierManagementController (e2e)', () => {
     it('should return 400 for empty string fields', async () => {
       const invalidIdentifierWithEmptyStrings: IdentifierDto = {
         namespace: '',
+
         applicationIdentifiers: [
           {
             title: '',
@@ -424,6 +432,7 @@ describe('IdentifierManagementController (e2e)', () => {
     it('should not create list of application identifiers with invalid application identifier type', async () => {
       const identifierDto: IdentifierDto = {
         namespace: gs1,
+
         applicationIdentifiers: [
           {
             ai: '01',
@@ -453,6 +462,7 @@ describe('IdentifierManagementController (e2e)', () => {
     it('should not create list of application identifiers with qualifiers not appearing in the list of application identifiers', async () => {
       const identifierDto: IdentifierDto = {
         namespace: gs1,
+
         applicationIdentifiers: [
           {
             ai: '01',
@@ -482,6 +492,7 @@ describe('IdentifierManagementController (e2e)', () => {
     it('should not create list of application identifiers with invalid regex pattern', async () => {
       const identifierDto: IdentifierDto = {
         namespace: gs1,
+
         applicationIdentifiers: [
           {
             ai: '01',
@@ -513,6 +524,7 @@ describe('IdentifierManagementController (e2e)', () => {
     it('should retrieve all identifiers successfully', async () => {
       const identifierDto: IdentifierDto = {
         namespace: gs1,
+
         applicationIdentifiers: [
           {
             ai: '01',
@@ -527,6 +539,7 @@ describe('IdentifierManagementController (e2e)', () => {
       };
       const secondIdentifierDto: IdentifierDto = {
         namespace: integritySystems,
+
         applicationIdentifiers: [
           {
             ai: '01',
@@ -578,6 +591,7 @@ describe('IdentifierManagementController (e2e)', () => {
     it('should retrieve the identifier for the namespace successfully', async () => {
       const identifierDto: IdentifierDto = {
         namespace: gs1,
+
         applicationIdentifiers: [
           {
             ai: '01',
@@ -630,6 +644,7 @@ describe('IdentifierManagementController (e2e)', () => {
     it('should delete the created identifier', async () => {
       const identifierDto: IdentifierDto = {
         namespace: gs1,
+
         applicationIdentifiers: [
           {
             ai: '01',
