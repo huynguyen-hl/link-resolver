@@ -1,149 +1,123 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus } from '@nestjs/common';
+import { IdentifierDto } from 'src/modules/identifier-management/dto/identifier.dto';
 import * as request from 'supertest';
-import { AppModule } from '../../src/app.module';
-import { IRepositoryProvider } from '../../src/repository/providers/provider.repository.interface';
 
-const baseUrl = process.env.APP_ENDPOINT;
+const baseUrl = process.env.RESOLVER_DOMAIN;
 const environment = process.env.ENVIRONMENT;
+const apiKey = process.env.API_KEY;
 
 // Define namespaces for e2e testing to avoid data pollution
 const gs1 = `e2e-${environment}-mock-gs1`;
 
 describe('LinkResolutionController (e2e)', () => {
-  let app: INestApplication;
-  let repositoryProvider: IRepositoryProvider;
-
-  beforeAll(async () => {
-    // Creates a testing module for the AppModule.
-    const module: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-
-    // Get the INestApplication and the IRepositoryProvider instance from the testing module.
-    app = module.createNestApplication();
-
-    repositoryProvider = module.get<IRepositoryProvider>('RepositoryProvider');
-
-    // Initialize the application.
-    await app.init();
-  });
-
-  beforeEach(async () => {
-    // Reset the repository before each test.
-    await repositoryProvider.save({
-      id: 'identifiers.json',
-      [gs1]: {
-        namespace: gs1,
-        applicationIdentifiers: [
-          {
-            title: 'Serial Shipping Container Code (SSCC) ',
-            label: 'SSCC',
-            shortcode: 'sscc',
-            ai: '00',
-            format: 'N18',
-            type: 'I',
-            regex: '(\\d{18})',
-          },
-          {
-            title: 'Global Trade Item Number (GTIN)',
-            label: 'GTIN',
-            shortcode: 'gtin',
-            ai: '01',
-            format: 'N14',
-            type: 'I',
-            qualifiers: ['22', '10', '3101', '13', '21'],
-            regex: '(\\d{12,14}|\\d{8})',
-          },
-          {
-            title: 'Consumer product variant',
-            label: 'CPV',
-            shortcode: 'cpv',
-            ai: '22',
-            format: 'N2+X..20',
-            type: 'Q',
-            regex: '([!%-?A-Z_a-z\\x22]{1,20})',
-          },
-          {
-            title: 'Batch or lot number',
-            label: 'BATCH/LOT',
-            shortcode: 'batch/lot',
-            ai: '10',
-            format: 'N2+X..20',
-            type: 'Q',
-            regex: '([!%-?A-Z_a-z\\x22]{1,20})',
-          },
-          {
-            title: 'NET WEIGHT (kg)',
-            label: 'NET WEIGHT (kg)',
-            shortcode: 'NET WEIGHT (kg)',
-            ai: '3101',
-            format: 'N4+N6',
-            type: 'Q',
-            regex: '(\\d{6})',
-          },
-          {
-            title: 'Packaging date (YYMMDD)',
-            label: 'PACK DATE',
-            shortcode: 'PACK DATE',
-            ai: '13',
-            format: 'N2+N6',
-            type: 'Q',
-            regex: '(\\d{2}(?:0\\d|1[0-2])(?:[0-2]\\d|3[01]))',
-          },
-          {
-            title: 'Serial number',
-            label: 'SERIAL',
-            shortcode: 'SERIAL',
-            ai: '21',
-            format: 'N2+X..20',
-            type: 'Q',
-            regex: '([!%-?A-Z_a-z\\x22]{1,20})',
-          },
-        ],
-      },
-    });
-  });
-
-  // Test the POST /api/resolver endpoint
   describe('/api/resolver (POST)', () => {
-    it('should register a new link resolver with valid payload', () => {
+    const createIdentifierDto = (): IdentifierDto => ({
+      namespace: gs1,
+      applicationIdentifiers: [
+        {
+          ai: '01',
+          shortcode: 'gtin',
+          type: 'I',
+          title: 'Global Trade Item Number (GTIN)',
+          label: 'GTIN',
+          regex: '(\\d{12,14}|\\d{8})',
+          qualifiers: ['22', '10', '21'],
+        },
+        {
+          ai: '10',
+          shortcode: 'lot',
+          type: 'Q',
+          title: 'Batch or lot number',
+          label: 'BATCH/LOT',
+          regex:
+            '([\\x21-\\x22\\x25-\\x2F\\x30-\\x39\\x41-\\x5A\\x5F\\x61-\\x7A]{0,20})',
+        },
+        {
+          ai: '21',
+          shortcode: 'ser',
+          type: 'Q',
+          title: 'Serial number',
+          label: 'SERIAL',
+          regex:
+            '([\\x21-\\x22\\x25-\\x2F\\x30-\\x39\\x41-\\x5A\\x5F\\x61-\\x7A]{0,20})',
+        },
+        {
+          ai: '22',
+          shortcode: 'cpv',
+          type: 'Q',
+          title: 'Consumer product variant',
+          label: 'CPV',
+          regex:
+            '([\\x21-\\x22\\x25-\\x2F\\x30-\\x39\\x41-\\x5A\\x5F\\x61-\\x7A]{0,20})',
+        },
+      ],
+    });
+
+    const registerIdentifier = async (identifierDto: IdentifierDto) => {
+      const res = await request(baseUrl)
+        .post('/api/identifiers')
+        .set('Authorization', `Bearer ${apiKey}`)
+        .send(identifierDto)
+        .expect(HttpStatus.OK);
+
+      expect(res.body).toEqual({
+        message: 'Application identifier upserted successfully',
+      });
+
+      return res;
+    };
+
+    beforeAll(async () => {
+      const identifierDto = createIdentifierDto();
+      const res = await registerIdentifier(identifierDto);
+
+      expect(res.body).toEqual({
+        message: 'Application identifier upserted successfully',
+      });
+    });
+
+    it('should register a new link resolver with valid payload', async () => {
       return request(baseUrl)
         .post('/api/resolver')
         .send({
           namespace: gs1,
           identificationKeyType: 'gtin',
           identificationKey: '12345678901234',
-          qualifierPath: '/10/12345678901234567890/22/ABCDE',
           itemDescription: 'DPP',
+          qualifierPath: '/10/12345678901234567890/22/ABCDE',
           active: true,
           responses: [
             {
               defaultLinkType: true,
               defaultMimeType: true,
+              defaultIanaLanguage: true,
+              defaultContext: true,
               fwqs: false,
               active: true,
-              linkType: 'dlr:certificationInfo',
-              linkTitle: 'DPP',
-              targetUrl: 'http://example.com',
-              mimeType: 'text/html',
+              linkType: 'gs1:certificationInfo',
+              ianaLanguage: 'en',
+              context: 'au',
+              title: 'Certification Information',
+              targetUrl: 'https://example.com',
+              mimeType: 'application/json',
             },
           ],
         })
         .set('Accept', 'application/json')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .expect(201)
         .expect({
           message: 'Link resolver registered successfully',
         });
     });
 
-    it('should register a new link resolver when missing the qualifierPath', () => {
+    it('should register a new link resolver when missing the qualifierPath', async () => {
       return request(baseUrl)
         .post('/api/resolver')
         .send({
           namespace: gs1,
           identificationKeyType: 'gtin',
-          identificationKey: '12345678901234',
+          identificationKey: '1234567890123499',
           // missing qualifierPath
           itemDescription: 'DPP',
           active: true,
@@ -151,24 +125,29 @@ describe('LinkResolutionController (e2e)', () => {
             {
               defaultLinkType: true,
               defaultMimeType: true,
+              defaultIanaLanguage: true,
+              defaultContext: true,
               fwqs: false,
               active: true,
-              linkType: 'dlr:certificationInfo',
-              linkTitle: 'DPP',
-              targetUrl: 'http://example.com',
-              mimeType: 'text/html',
+              linkType: 'gs1:certificationInfo',
+              ianaLanguage: 'en',
+              context: 'au',
+              title: 'Certification Information',
+              targetUrl: 'https://example.com',
+              mimeType: 'application/json',
             },
           ],
         })
         .set('Accept', 'application/json')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .expect(201)
         .expect({
           message: 'Link resolver registered successfully',
         });
     });
 
-    it('should throw an error if namespace is not found', () => {
-      return request(baseUrl)
+    it('should throw an error if namespace is not found', async () => {
+      await request(baseUrl)
         .post('/api/resolver')
         .send({
           // missing namespace
@@ -181,16 +160,21 @@ describe('LinkResolutionController (e2e)', () => {
             {
               defaultLinkType: true,
               defaultMimeType: true,
+              defaultIanaLanguage: true,
+              defaultContext: true,
               fwqs: false,
               active: true,
-              linkType: 'dlr:certificationInfo',
-              linkTitle: 'DPP',
-              targetUrl: 'http://example.com',
-              mimeType: 'text/html',
+              linkType: 'gs1:certificationInfo',
+              ianaLanguage: 'en',
+              context: 'au',
+              title: 'Certification Information',
+              targetUrl: 'https://example.com',
+              mimeType: 'application/json',
             },
           ],
         })
         .set('Accept', 'application/json')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .expect(400)
         .expect((res) => {
           expect(res.body.path).toBe('/api/resolver');
@@ -201,8 +185,8 @@ describe('LinkResolutionController (e2e)', () => {
         });
     });
 
-    it('should throw an error if identificationKeyType is not found', () => {
-      return request(baseUrl)
+    it('should throw an error if identificationKeyType is not found', async () => {
+      await request(baseUrl)
         .post('/api/resolver')
         .send({
           namespace: gs1,
@@ -215,16 +199,21 @@ describe('LinkResolutionController (e2e)', () => {
             {
               defaultLinkType: true,
               defaultMimeType: true,
+              defaultIanaLanguage: true,
+              defaultContext: true,
               fwqs: false,
               active: true,
-              linkType: 'dlr:certificationInfo',
-              linkTitle: 'DPP',
-              targetUrl: 'http://example.com',
-              mimeType: 'text/html',
+              linkType: 'gs1:certificationInfo',
+              ianaLanguage: 'en',
+              context: 'au',
+              title: 'Certification Information',
+              targetUrl: 'https://example.com',
+              mimeType: 'application/json',
             },
           ],
         })
         .set('Accept', 'application/json')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .expect(400)
         .expect((res) => {
           expect(res.body.path).toBe('/api/resolver');
@@ -241,8 +230,8 @@ describe('LinkResolutionController (e2e)', () => {
         });
     });
 
-    it('should throw an error if identificationKey is not found', () => {
-      return request(baseUrl)
+    it('should throw an error if identificationKey is not found', async () => {
+      await request(baseUrl)
         .post('/api/resolver')
         .send({
           namespace: gs1,
@@ -255,16 +244,21 @@ describe('LinkResolutionController (e2e)', () => {
             {
               defaultLinkType: true,
               defaultMimeType: true,
+              defaultIanaLanguage: true,
+              defaultContext: true,
               fwqs: false,
               active: true,
-              linkType: 'dlr:certificationInfo',
-              linkTitle: 'DPP',
-              targetUrl: 'http://example.com',
-              mimeType: 'text/html',
+              linkType: 'gs1:certificationInfo',
+              ianaLanguage: 'en',
+              context: 'au',
+              title: 'Certification Information',
+              targetUrl: 'https://example.com',
+              mimeType: 'application/json',
             },
           ],
         })
         .set('Accept', 'application/json')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .expect(400)
         .expect((res) => {
           expect(res.body.path).toBe('/api/resolver');
@@ -281,8 +275,8 @@ describe('LinkResolutionController (e2e)', () => {
         });
     });
 
-    it('should throw an error if itemDescription is not found', () => {
-      return request(baseUrl)
+    it('should throw an error if itemDescription is not found', async () => {
+      await request(baseUrl)
         .post('/api/resolver')
         .send({
           namespace: gs1,
@@ -295,16 +289,21 @@ describe('LinkResolutionController (e2e)', () => {
             {
               defaultLinkType: true,
               defaultMimeType: true,
+              defaultIanaLanguage: true,
+              defaultContext: true,
               fwqs: false,
               active: true,
-              linkType: 'dlr:certificationInfo',
-              linkTitle: 'DPP',
-              targetUrl: 'http://example.com',
-              mimeType: 'text/html',
+              linkType: 'gs1:certificationInfo',
+              ianaLanguage: 'en',
+              context: 'au',
+              title: 'Certification Information',
+              targetUrl: 'https://example.com',
+              mimeType: 'application/json',
             },
           ],
         })
         .set('Accept', 'application/json')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .expect(400)
         .expect((res) => {
           expect(res.body.path).toBe('/api/resolver');
@@ -321,8 +320,8 @@ describe('LinkResolutionController (e2e)', () => {
         });
     });
 
-    it('should throw an error if active is not found', () => {
-      return request(baseUrl)
+    it('should throw an error if active is not found', async () => {
+      await request(baseUrl)
         .post('/api/resolver')
         .send({
           namespace: gs1,
@@ -335,30 +334,35 @@ describe('LinkResolutionController (e2e)', () => {
             {
               defaultLinkType: true,
               defaultMimeType: true,
+              defaultIanaLanguage: true,
+              defaultContext: true,
               fwqs: false,
               active: true,
-              linkType: 'dlr:certificationInfo',
-              linkTitle: 'DPP',
-              targetUrl: 'http://example.com',
-              mimeType: 'text/html',
+              linkType: 'gs1:certificationInfo',
+              ianaLanguage: 'en',
+              context: 'au',
+              title: 'Certification Information',
+              targetUrl: 'https://example.com',
+              mimeType: 'application/json',
             },
           ],
         })
         .set('Accept', 'application/json')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .expect(400)
         .expect((res) => {
           expect(res.body.path).toBe('/api/resolver');
           expect(res.body.errors).toEqual([
             {
               field: 'active',
-              message: 'errors.isBoolean',
+              message: 'active must be a boolean',
             },
           ]);
         });
     });
 
-    it('should throw an error if responses is not found', () => {
-      return request(baseUrl)
+    it('should throw an error if responses is not found', async () => {
+      await request(baseUrl)
         .post('/api/resolver')
         .send({
           namespace: gs1,
@@ -370,24 +374,25 @@ describe('LinkResolutionController (e2e)', () => {
           // missing responses
         })
         .set('Accept', 'application/json')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .expect(400)
         .expect((res) => {
           expect(res.body.path).toBe('/api/resolver');
           expect(res.body.errors).toEqual([
             {
               field: 'responses',
-              message: 'errors.arrayNotEmpty',
+              message: 'responses should not be an empty array',
             },
             {
               field: 'responses',
-              message: 'errors.isArray',
+              message: 'responses must be an array',
             },
           ]);
         });
     });
 
-    it('should throw a bad request error for invalid active', () => {
-      return request(baseUrl)
+    it('should throw a bad request error for invalid active', async () => {
+      await request(baseUrl)
         .post('/api/resolver')
         .send({
           namespace: gs1,
@@ -400,30 +405,38 @@ describe('LinkResolutionController (e2e)', () => {
             {
               defaultLinkType: true,
               defaultMimeType: true,
+              defaultIanaLanguage: true,
+              defaultContext: true,
               fwqs: false,
               active: true,
-              linkType: 'dlr:certificationInfo',
-              linkTitle: 'DPP',
-              targetUrl: 'http://example.com',
-              mimeType: 'text/html',
+              linkType: 'gs1:certificationInfo',
+              ianaLanguage: 'en',
+              context: 'au',
+              title: 'Certification Information',
+              targetUrl: 'https://example.com',
+              mimeType: 'application/json',
             },
           ],
         })
         .set('Accept', 'application/json')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .expect(400)
         .expect((res) => {
           expect(res.body.path).toBe('/api/resolver');
           expect(res.body.errors).toEqual([
             {
               field: 'active',
-              message: 'errors.isBoolean',
+              message: 'active must be a boolean',
             },
           ]);
         });
     });
 
-    it('should throw an error if qualifier path are present but not in the identifier qualifiers', () => {
-      return request(baseUrl)
+    it('should throw an error if qualifier path are present but not in the identifier qualifiers', async () => {
+      const identifierDto = createIdentifierDto();
+      await registerIdentifier(identifierDto);
+
+      request(baseUrl)
         .post('/api/resolver')
         .send({
           namespace: gs1,
@@ -436,16 +449,21 @@ describe('LinkResolutionController (e2e)', () => {
             {
               defaultLinkType: true,
               defaultMimeType: true,
+              defaultIanaLanguage: true,
+              defaultContext: true,
               fwqs: false,
               active: true,
-              linkType: 'dlr:certificationInfo',
-              linkTitle: 'DPP',
-              targetUrl: 'http://example.com',
-              mimeType: 'text/html',
+              linkType: 'gs1:certificationInfo',
+              ianaLanguage: 'en',
+              context: 'au',
+              title: 'Certification Information',
+              targetUrl: 'https://example.com',
+              mimeType: 'application/json',
             },
           ],
         })
         .set('Accept', 'application/json')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .expect(422)
         .expect((res) => {
           expect(res.body.path).toBe('/api/resolver');
@@ -459,8 +477,12 @@ describe('LinkResolutionController (e2e)', () => {
         });
     });
 
-    it('should throw an error if the qualifier value does not match the regex', () => {
-      return request(baseUrl)
+    it('should throw an error if the qualifier value does not match the regex', async () => {
+      // Register a new link resolver
+      const identifierDto = createIdentifierDto();
+      await registerIdentifier(identifierDto);
+
+      request(baseUrl)
         .post('/api/resolver')
         .send({
           namespace: gs1,
@@ -473,16 +495,21 @@ describe('LinkResolutionController (e2e)', () => {
             {
               defaultLinkType: true,
               defaultMimeType: true,
+              defaultIanaLanguage: true,
+              defaultContext: true,
               fwqs: false,
               active: true,
-              linkType: 'dlr:certificationInfo',
-              linkTitle: 'DPP',
-              targetUrl: 'http://example.com',
-              mimeType: 'text/html',
+              linkType: 'gs1:certificationInfo',
+              ianaLanguage: 'en',
+              context: 'au',
+              title: 'Certification Information',
+              targetUrl: 'https://example.com',
+              mimeType: 'application/json',
             },
           ],
         })
         .set('Accept', 'application/json')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .expect(422)
         .expect((res) => {
           expect(res.body.path).toBe('/api/resolver');
@@ -496,8 +523,12 @@ describe('LinkResolutionController (e2e)', () => {
         });
     });
 
-    it('should throw an error for invalid identificationKeyType', () => {
-      return request(baseUrl)
+    it('should throw an error for invalid identificationKeyType', async () => {
+      // Register a new link resolver
+      const identifierDto = createIdentifierDto();
+      await registerIdentifier(identifierDto);
+
+      request(baseUrl)
         .post('/api/resolver')
         .send({
           namespace: gs1,
@@ -510,16 +541,21 @@ describe('LinkResolutionController (e2e)', () => {
             {
               defaultLinkType: true,
               defaultMimeType: true,
+              defaultIanaLanguage: true,
+              defaultContext: true,
               fwqs: false,
               active: true,
-              linkType: 'dlr:certificationInfo',
-              linkTitle: 'DPP',
-              targetUrl: 'http://example.com',
-              mimeType: 'text/html',
+              linkType: 'gs1:certificationInfo',
+              ianaLanguage: 'en',
+              context: 'au',
+              title: 'Certification Information',
+              targetUrl: 'https://example.com',
+              mimeType: 'application/json',
             },
           ],
         })
         .set('Accept', 'application/json')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .expect(422)
         .expect((res) => {
           expect(res.body.path).toBe('/api/resolver');
@@ -532,8 +568,12 @@ describe('LinkResolutionController (e2e)', () => {
         });
     });
 
-    it('should throw an error for invalid identificationKey', () => {
-      return request(baseUrl)
+    it('should throw an error for invalid identificationKey', async () => {
+      // Register a new link resolver
+      const identifierDto = createIdentifierDto();
+      await registerIdentifier(identifierDto);
+
+      request(baseUrl)
         .post('/api/resolver')
         .send({
           namespace: gs1,
@@ -546,16 +586,21 @@ describe('LinkResolutionController (e2e)', () => {
             {
               defaultLinkType: true,
               defaultMimeType: true,
+              defaultIanaLanguage: true,
+              defaultContext: true,
               fwqs: false,
               active: true,
-              linkType: 'dlr:certificationInfo',
-              linkTitle: 'DPP',
-              targetUrl: 'http://example.com',
-              mimeType: 'text/html',
+              linkType: 'gs1:certificationInfo',
+              ianaLanguage: 'en',
+              context: 'au',
+              title: 'Certification Information',
+              targetUrl: 'https://example.com',
+              mimeType: 'application/json',
             },
           ],
         })
         .set('Accept', 'application/json')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .expect(422)
         .expect((res) => {
           expect(res.body.path).toBe('/api/resolver');
@@ -569,8 +614,12 @@ describe('LinkResolutionController (e2e)', () => {
         });
     });
 
-    it('should throw an error for invalid qualifierPath', () => {
-      return request(baseUrl)
+    it('should throw an error for invalid qualifierPath', async () => {
+      // Register a new link resolver
+      const identifierDto = createIdentifierDto();
+      await registerIdentifier(identifierDto);
+
+      request(baseUrl)
         .post('/api/resolver')
         .send({
           namespace: gs1,
@@ -583,16 +632,21 @@ describe('LinkResolutionController (e2e)', () => {
             {
               defaultLinkType: true,
               defaultMimeType: true,
+              defaultIanaLanguage: true,
+              defaultContext: true,
               fwqs: false,
               active: true,
-              linkType: 'dlr:certificationInfo',
-              linkTitle: 'DPP',
-              targetUrl: 'http://example.com',
-              mimeType: 'text/html',
+              linkType: 'gs1:certificationInfo',
+              ianaLanguage: 'en',
+              context: 'au',
+              title: 'Certification Information',
+              targetUrl: 'https://example.com',
+              mimeType: 'application/json',
             },
           ],
         })
         .set('Accept', 'application/json')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .expect(422)
         .expect((res) => {
           expect(res.body.path).toBe('/api/resolver');
@@ -618,21 +672,22 @@ describe('LinkResolutionController (e2e)', () => {
           responses: 'invalid', // invalid responses
         })
         .set('Accept', 'application/json')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .expect(400)
         .expect((res) => {
           expect(res.body.path).toBe('/api/resolver');
           expect(res.body.errors).toEqual([
             {
               field: 'responses',
-              message: 'errors.arrayNotEmpty',
+              message: 'responses should not be an empty array',
             },
             {
               field: 'responses',
-              message: 'errors.isArray',
+              message: 'responses must be an array',
             },
             {
               field: 'responses',
-              message: 'errors.nestedValidation',
+              message: 'responses nested validation failed',
             },
           ]);
         });
@@ -652,23 +707,28 @@ describe('LinkResolutionController (e2e)', () => {
             {
               defaultLinkType: 'invalid', // invalid default link type
               defaultMimeType: true,
+              defaultIanaLanguage: true,
+              defaultContext: true,
               fwqs: false,
               active: true,
-              linkType: 'dlr:certificationInfo',
-              linkTitle: 'DPP',
-              targetUrl: 'http://example.com',
-              mimeType: 'text/html',
+              linkType: 'gs1:certificationInfo',
+              ianaLanguage: 'en',
+              context: 'au',
+              title: 'Certification Information',
+              targetUrl: 'https://example.com',
+              mimeType: 'application/json',
             },
           ],
         })
         .set('Accept', 'application/json')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .expect(400)
         .expect((res) => {
           expect(res.body.path).toBe('/api/resolver');
           expect(res.body.errors).toEqual([
             {
-              field: 'defaultLinkType',
-              message: 'errors.isBoolean',
+              field: 'responses.0.defaultLinkType',
+              message: 'defaultLinkType must be a boolean',
             },
           ]);
         });
@@ -688,23 +748,28 @@ describe('LinkResolutionController (e2e)', () => {
             {
               defaultLinkType: true,
               defaultMimeType: 'invalid', // invalid default mime type
+              defaultIanaLanguage: true,
+              defaultContext: true,
               fwqs: false,
               active: true,
-              linkType: 'dlr:certificationInfo',
-              linkTitle: 'DPP',
-              targetUrl: 'http://example.com',
-              mimeType: 'text/html',
+              linkType: 'gs1:certificationInfo',
+              ianaLanguage: 'en',
+              context: 'au',
+              title: 'Certification Information',
+              targetUrl: 'https://example.com',
+              mimeType: 'application/json',
             },
           ],
         })
         .set('Accept', 'application/json')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .expect(400)
         .expect((res) => {
           expect(res.body.path).toBe('/api/resolver');
           expect(res.body.errors).toEqual([
             {
-              field: 'defaultMimeType',
-              message: 'errors.isBoolean',
+              field: 'responses.0.defaultMimeType',
+              message: 'defaultMimeType must be a boolean',
             },
           ]);
         });
@@ -724,23 +789,28 @@ describe('LinkResolutionController (e2e)', () => {
             {
               defaultLinkType: true,
               defaultMimeType: true,
+              defaultIanaLanguage: true,
+              defaultContext: true,
               fwqs: 'invalid', // invalid fwqs
               active: true,
-              linkType: 'dlr:certificationInfo',
-              linkTitle: 'DPP',
-              targetUrl: 'http://example.com',
-              mimeType: 'text/html',
+              linkType: 'gs1:certificationInfo',
+              ianaLanguage: 'en',
+              context: 'au',
+              title: 'Certification Information',
+              targetUrl: 'https://example.com',
+              mimeType: 'application/json',
             },
           ],
         })
         .set('Accept', 'application/json')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .expect(400)
         .expect((res) => {
           expect(res.body.path).toBe('/api/resolver');
           expect(res.body.errors).toEqual([
             {
-              field: 'fwqs',
-              message: 'errors.isBoolean',
+              field: 'responses.0.fwqs',
+              message: 'fwqs must be a boolean',
             },
           ]);
         });
@@ -760,23 +830,28 @@ describe('LinkResolutionController (e2e)', () => {
             {
               defaultLinkType: true,
               defaultMimeType: true,
+              defaultIanaLanguage: true,
+              defaultContext: true,
               fwqs: false,
               active: 'invalid', // invalid active
-              linkType: 'dlr:certificationInfo',
-              linkTitle: 'DPP',
-              targetUrl: 'http://example.com',
-              mimeType: 'text/html',
+              linkType: 'gs1:certificationInfo',
+              ianaLanguage: 'en',
+              context: 'au',
+              title: 'Certification Information',
+              targetUrl: 'https://example.com',
+              mimeType: 'application/json',
             },
           ],
         })
         .set('Accept', 'application/json')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .expect(400)
         .expect((res) => {
           expect(res.body.path).toBe('/api/resolver');
           expect(res.body.errors).toEqual([
             {
-              field: 'active',
-              message: 'errors.isBoolean',
+              field: 'responses.0.active',
+              message: 'active must be a boolean',
             },
           ]);
         });
@@ -796,22 +871,27 @@ describe('LinkResolutionController (e2e)', () => {
             {
               defaultLinkType: true,
               defaultMimeType: true,
+              defaultIanaLanguage: true,
+              defaultContext: true,
               fwqs: false,
               active: true,
               linkType: 'invalid', // invalid link type
-              linkTitle: 'DPP',
-              targetUrl: 'http://example.com',
-              mimeType: 'text/html',
+              ianaLanguage: 'en',
+              context: 'au',
+              title: 'Certification Information',
+              targetUrl: 'https://example.com',
+              mimeType: 'application/json',
             },
           ],
         })
         .set('Accept', 'application/json')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .expect(400)
         .expect((res) => {
           expect(res.body.path).toBe('/api/resolver');
           expect(res.body.errors).toEqual([
             {
-              field: 'linkType',
+              field: 'responses.0.linkType',
               message: 'linkType is not in the list of allowed values',
             },
           ]);
@@ -832,27 +912,38 @@ describe('LinkResolutionController (e2e)', () => {
             {
               defaultLinkType: true,
               defaultMimeType: true,
+              defaultIanaLanguage: true,
+              defaultContext: true,
               fwqs: false,
               active: true,
-              linkType: 'dlr:certificationInfo',
-              linkTitle: '', // invalid link title
-              targetUrl: 'http://example.com',
-              mimeType: 'text/html',
+              linkType: 'gs1:certificationInfo',
+              ianaLanguage: 'en',
+              context: 'au',
+              title: '', // invalid title
+              targetUrl: 'https://example.com',
+              mimeType: 'application/json',
             },
           ],
         })
         .set('Accept', 'application/json')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .expect(400)
         .expect((res) => {
           expect(res.body.path).toBe('/api/resolver');
           expect(res.body.errors).toEqual([
-            { field: 'linkTitle', message: 'linkTitle should not be empty' },
+            {
+              field: 'responses.0.title',
+              message: 'title should not be empty',
+            },
           ]);
         });
     });
 
-    it("should throw a bad request error for invalid response's targetUrl", () => {
-      return request(baseUrl)
+    it("should throw a bad request error for invalid response's targetUrl", async () => {
+      const identifierDto = createIdentifierDto();
+      await registerIdentifier(identifierDto);
+
+      request(baseUrl)
         .post('/api/resolver')
         .send({
           namespace: gs1,
@@ -865,16 +956,21 @@ describe('LinkResolutionController (e2e)', () => {
             {
               defaultLinkType: true,
               defaultMimeType: true,
+              defaultIanaLanguage: true,
+              defaultContext: true,
               fwqs: false,
               active: true,
-              linkType: 'dlr:certificationInfo',
-              linkTitle: 'DPP',
+              linkType: 'gs1:certificationInfo',
+              ianaLanguage: 'en',
+              context: 'au',
+              title: 'Certification Information',
               targetUrl: 'invalid', // invalid target URL
               mimeType: 'text/html',
             },
           ],
         })
         .set('Accept', 'application/json')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .expect(400)
         .expect((res) => {
           expect(res.body.path).toBe('/api/resolver');
@@ -898,26 +994,39 @@ describe('LinkResolutionController (e2e)', () => {
             {
               defaultLinkType: true,
               defaultMimeType: true,
+              defaultIanaLanguage: true,
+              defaultContext: true,
               fwqs: false,
               active: true,
-              linkType: 'dlr:certificationInfo',
-              linkTitle: 'DPP',
-              targetUrl: 'http://example.com',
+              linkType: 'gs1:certificationInfo',
+              ianaLanguage: 'en',
+              context: 'au',
+              title: 'Certification Information',
+              targetUrl: 'https://example.com',
               mimeType: 'invalid', // invalid mime type
             },
           ],
         })
         .set('Accept', 'application/json')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .expect(400)
         .expect((res) => {
           expect(res.body.path).toBe('/api/resolver');
           expect(res.body.errors).toEqual([
             {
-              field: 'mimeType',
+              field: 'responses.0.mimeType',
               message: 'mimeType is not in the list of allowed values',
             },
           ]);
         });
     });
+  });
+
+  it('delete namespace', async () => {
+    await request(baseUrl)
+      .delete('/api/identifiers')
+      .set('Authorization', `Bearer ${apiKey}`)
+      .query({ namespace: gs1 })
+      .expect(HttpStatus.OK);
   });
 });

@@ -1,2 +1,4 @@
-process.env.APP_ENDPOINT = 'http://localhost:3000';
-process.env.ENVIRONMENT = 'local';
+import * as dotenv from 'dotenv';
+
+// Load .env.test file
+dotenv.config({ path: '.env.test.local' });

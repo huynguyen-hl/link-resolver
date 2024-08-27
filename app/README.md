@@ -25,11 +25,21 @@ $ npm run start:prod
 # unit tests
 $ npm run test
 
-# e2e tests
-$ npm run test:e2e
-
 # test coverage
 $ npm run test:cov
+```
+
+### For e2e test:
+
+Pre-requisites to run on local:
+
+- Create `.env.test.local` file with the following content in `.env.test.local.example` file
+- Run the docker-compose file to start the MinIO server (`docker-compose up`)
+- Run the command `npm run start:test` to start the application in test mode
+
+```bash
+# e2e tests
+$ npm run test:e2e
 ```
 
 ## API Specification

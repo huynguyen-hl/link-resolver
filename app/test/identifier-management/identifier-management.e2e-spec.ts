@@ -1,8 +1,8 @@
 import { HttpStatus } from '@nestjs/common';
 import * as request from 'supertest';
-import { IdentifierDto } from '../src/modules/identifier-management/dto/identifier.dto';
+import { IdentifierDto } from '../../src/modules/identifier-management/dto/identifier.dto';
 
-const baseUrl = process.env.APP_ENDPOINT;
+const baseUrl = process.env.RESOLVER_DOMAIN;
 const environment = process.env.ENVIRONMENT;
 
 // Define namespaces for e2e testing to avoid data pollution
@@ -55,6 +55,7 @@ describe('IdentifierManagementController (e2e)', () => {
       };
       const res = await request(baseUrl)
         .post('/api/identifiers')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .send(identifierDto)
         .expect(HttpStatus.OK);
 
@@ -64,6 +65,7 @@ describe('IdentifierManagementController (e2e)', () => {
 
       const response = await request(baseUrl)
         .get('/api/identifiers')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .query({ namespace: identifierDto.namespace })
         .expect(HttpStatus.OK);
       expect(response.body).toMatchObject(identifierDto);
@@ -71,6 +73,7 @@ describe('IdentifierManagementController (e2e)', () => {
       // Cleanup
       await request(baseUrl)
         .delete('/api/identifiers')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .query({ namespace: identifierDto.namespace })
         .expect(HttpStatus.OK);
     });
@@ -123,15 +126,18 @@ describe('IdentifierManagementController (e2e)', () => {
       // Create empty list first
       await request(baseUrl)
         .post('/api/identifiers')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .send(identifierDtoEmpty)
         .expect(HttpStatus.OK);
       // Create actual list
       await request(baseUrl)
         .post('/api/identifiers')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .send(identifierDto)
         .expect(HttpStatus.OK);
       const response = await request(baseUrl)
         .get('/api/identifiers')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .query({ namespace: identifierDto.namespace })
         .expect(HttpStatus.OK);
       expect(response.body).toMatchObject(identifierDto);
@@ -139,6 +145,7 @@ describe('IdentifierManagementController (e2e)', () => {
       // Cleanup
       await request(baseUrl)
         .delete('/api/identifiers')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .query({ namespace: identifierDto.namespace })
         .expect(HttpStatus.OK);
     });
@@ -202,15 +209,18 @@ describe('IdentifierManagementController (e2e)', () => {
       // Create initial list
       await request(baseUrl)
         .post('/api/identifiers')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .send(initialDto)
         .expect(HttpStatus.OK);
       // Override with new list
       await request(baseUrl)
         .post('/api/identifiers')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .send(overrideDto)
         .expect(HttpStatus.OK);
       const response = await request(baseUrl)
         .get('/api/identifiers')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .query({ namespace: overrideDto.namespace })
         .expect(HttpStatus.OK);
       expect(response.body).toMatchObject(overrideDto);
@@ -218,6 +228,7 @@ describe('IdentifierManagementController (e2e)', () => {
       // Cleanup
       await request(baseUrl)
         .delete('/api/identifiers')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .query({ namespace: overrideDto.namespace })
         .expect(HttpStatus.OK);
     });
@@ -273,6 +284,7 @@ describe('IdentifierManagementController (e2e)', () => {
       const res = await request(baseUrl)
         .post('/api/identifiers')
         .set('Content-Type', 'application/json')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .send(extraFieldsPayload) // send payload with extra fields
         .expect(HttpStatus.OK);
 
@@ -282,6 +294,7 @@ describe('IdentifierManagementController (e2e)', () => {
 
       const response = await request(baseUrl)
         .get('/api/identifiers')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .query({ namespace: identifierDto.namespace })
         .expect(HttpStatus.OK);
       expect(response.body).toMatchObject(identifierDto); // extra fields should be ignored
@@ -289,6 +302,7 @@ describe('IdentifierManagementController (e2e)', () => {
       // Cleanup
       await request(baseUrl)
         .delete('/api/identifiers')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .query({ namespace: identifierDto.namespace })
         .expect(HttpStatus.OK);
     });
@@ -315,6 +329,7 @@ describe('IdentifierManagementController (e2e)', () => {
       };
       const response = await request(baseUrl)
         .post('/api/identifiers')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .send(identifierDto)
         .expect(HttpStatus.BAD_REQUEST);
 
@@ -372,6 +387,7 @@ describe('IdentifierManagementController (e2e)', () => {
 
       return request(baseUrl)
         .post('/api/identifiers')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .send(invalidIdentifierWithEmptyStrings)
         .expect(400)
         .expect((res) => {
@@ -422,6 +438,7 @@ describe('IdentifierManagementController (e2e)', () => {
       };
       const response = await request(baseUrl)
         .post('/api/identifiers')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .send(identifierDto)
         .expect(HttpStatus.BAD_REQUEST);
 
@@ -450,6 +467,7 @@ describe('IdentifierManagementController (e2e)', () => {
       };
       const response = await request(baseUrl)
         .post('/api/identifiers')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .send(identifierDto)
         .expect(HttpStatus.BAD_REQUEST);
       expect(response.body.errors).toEqual([
@@ -478,6 +496,7 @@ describe('IdentifierManagementController (e2e)', () => {
       };
       const response = await request(baseUrl)
         .post('/api/identifiers')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .send(identifierDto)
         .expect(HttpStatus.BAD_REQUEST);
 
@@ -522,14 +541,17 @@ describe('IdentifierManagementController (e2e)', () => {
       };
       await request(baseUrl)
         .post('/api/identifiers')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .send(identifierDto)
         .expect(HttpStatus.OK);
       await request(baseUrl)
         .post('/api/identifiers')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .send(secondIdentifierDto)
         .expect(HttpStatus.OK);
       const response = await request(baseUrl)
         .get('/api/identifiers')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .expect(HttpStatus.OK);
 
       expect(response.body).toEqual(
@@ -542,11 +564,13 @@ describe('IdentifierManagementController (e2e)', () => {
       // Cleanup
       await request(baseUrl)
         .delete('/api/identifiers')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .query({ namespace: identifierDto.namespace })
         .expect(HttpStatus.OK);
 
       await request(baseUrl)
         .delete('/api/identifiers')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .query({ namespace: secondIdentifierDto.namespace })
         .expect(HttpStatus.OK);
     });
@@ -569,11 +593,13 @@ describe('IdentifierManagementController (e2e)', () => {
 
       await request(baseUrl)
         .post('/api/identifiers')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .send(identifierDto)
         .expect(HttpStatus.OK);
 
       const response = await request(baseUrl)
         .get('/api/identifiers')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .query({ namespace: identifierDto.namespace })
         .expect(HttpStatus.OK);
       expect(response.body).toMatchObject(identifierDto);
@@ -581,6 +607,7 @@ describe('IdentifierManagementController (e2e)', () => {
       // Cleanup
       await request(baseUrl)
         .delete('/api/identifiers')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .query({ namespace: identifierDto.namespace })
         .expect(HttpStatus.OK);
     });
@@ -589,6 +616,7 @@ describe('IdentifierManagementController (e2e)', () => {
       const namespace = 'non-existent-namespace';
       const response = await request(baseUrl)
         .get('/api/identifiers')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .query({ namespace })
         .expect(HttpStatus.BAD_REQUEST);
 
@@ -617,11 +645,13 @@ describe('IdentifierManagementController (e2e)', () => {
 
       await request(baseUrl)
         .post('/api/identifiers')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .send(identifierDto)
         .expect(HttpStatus.OK);
 
       let response = await request(baseUrl)
         .delete(`/api/identifiers`)
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .query({ namespace: identifierDto.namespace })
         .expect(200);
 
@@ -631,6 +661,7 @@ describe('IdentifierManagementController (e2e)', () => {
 
       response = await request(baseUrl)
         .get('/api/identifiers')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
         .query({ namespace: identifierDto.namespace })
         .expect(HttpStatus.BAD_REQUEST);
 
