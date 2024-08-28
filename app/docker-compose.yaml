@@ -5,9 +5,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        NODE_IMAGE: public.ecr.aws/lambda/nodejs:20
     ports:
       - '3000:3000'
     environment:
+      - NODE_ENV=dev
       - MINIO_ENDPOINT=minio
       - MINIO_PORT=9000
       - MINIO_USE_SSL=false

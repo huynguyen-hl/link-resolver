@@ -1,24 +1,19 @@
 FROM public.ecr.aws/lambda/nodejs:20
 
-ENV MINIO_REGION=ap-southeast-2
-ENV MINIO_ENDPOINT=test-idr-minio-bucket.s3.ap-southeast-2.amazonaws.com
-ENV MINIO_USE_SSL=false
-ENV MINIO_BUCKET_NAME=test-idr-minio-bucket
-ENV IDENTIFIER_PATH=identifiers
-ENV API_KEY=
-ENV APP_ENDPOINT=http://localhost:3000
-ENV APP_NAME=IDR
-ENV RESOLVER_DOMAIN=http://localhost:3000
-ENV LINK_TYPE_VOC_DOMAIN=http://localhost:3000/voc
-ENV HTTP_PORT=3000
-ENV LAMBDA_PORT=4000
-ENV NODE_ENV=production
+# Set environment variables
+ENV MINIO_URL=http://minio:9000
+ENV MINIO_ROOT_USER=minioadmin
+ENV MINIO_ROOT_PASSWORD=minioadmin
 
 WORKDIR /home/app
 
 COPY package*.json ./
 
 RUN npm ci
+
+COPY . .
+
+RUN npm run build
 
 COPY . ${LAMBDA_TASK_ROOT}
 
