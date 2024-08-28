@@ -34,6 +34,7 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
 
   if (process.env.NODE_ENV === 'production') {
+    await app.init();
     const expressApp = app.getHttpAdapter().getInstance();
     return serverlessExpress({ app: expressApp });
   } else {
