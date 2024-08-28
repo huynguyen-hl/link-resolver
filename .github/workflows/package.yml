@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - "v*.*.*" # vMAJOR.MINOR.PATCH | v0.0.1
+    branches:
+      - feat/serverless-app
 
   workflow_dispatch: # Manually run the workflow
 
@@ -45,11 +47,22 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Push Release
+      - name: Build and Push Local Image
         uses: docker/build-push-action@v5
         with:
-          push: ${{ startsWith(github.ref, 'refs/tags/') }}
-          tags: ${{ steps.meta.outputs.tags }}
+          # push: ${{ startsWith(github.ref, 'refs/tags/') }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}-local
+          labels: ${{ steps.meta.outputs.labels }}
+          context: app
+          file: app/Dockerfile
+
+      - name: Build and Push Serverless Image
+        uses: docker/build-push-action@v5
+        with:
+          # push: ${{ startsWith(github.ref, 'refs/tags/') }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}-serverless
           labels: ${{ steps.meta.outputs.labels }}
           context: app
           file: app/Dockerfile.serverless
