@@ -18,4 +18,4 @@ RUN npm run build
 COPY . ${LAMBDA_TASK_ROOT}
 
 # Pass the name of the function handler as an argument to the runtime
-CMD ["dist/lambda.handler"]
+CMD ["dist/main.handler"]
