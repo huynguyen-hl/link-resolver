@@ -1,6 +1,7 @@
 import { I18nService } from 'nestjs-i18n';
 import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
+import { HttpModule } from '@nestjs/axios';
 import { LinkRegistrationController } from './link-registration.controller';
 import { LinkRegistrationService } from './link-registration.service';
 import { CreateLinkRegistrationDto } from './dto/link-registration.dto';
@@ -14,7 +15,7 @@ describe('LinkRegistrationController', () => {
   beforeEach(async () => {
     // Create a testing module
     const module: TestingModule = await Test.createTestingModule({
-      imports: [RepositoryModule, ConfigModule],
+      imports: [RepositoryModule, ConfigModule, HttpModule],
       controllers: [LinkRegistrationController],
       providers: [
         {

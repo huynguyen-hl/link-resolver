@@ -46,9 +46,10 @@ export class LinkRegistrationService {
 
     // Construct link set and link header text
     const resolverDomain = this.configService.get<string>('RESOLVER_DOMAIN');
-    const linkTypeVocDomain = this.configService.get<string>(
-      'LINK_TYPE_VOC_DOMAIN',
-    );
+    const linkTypeVocDomain =
+      identifier.namespaceURI && identifier.namespaceURI !== ''
+        ? identifier.namespaceURI
+        : resolverDomain + '/voc/';
 
     if (!resolverDomain) {
       throw new Error('Missing configuration for RESOLVER_DOMAIN');

@@ -14,6 +14,8 @@ describe('Full flow (e2e)', () => {
   it('should create many namespaces', async () => {
     const identifierGtinDto: IdentifierDto = {
       namespace: gs1,
+      namespaceProfile: '',
+      namespaceURI: '',
       applicationIdentifiers: [
         {
           ai: '01',
@@ -64,6 +66,8 @@ describe('Full flow (e2e)', () => {
 
     const identifierNlisidDto2: IdentifierDto = {
       namespace: nlisid,
+      namespaceProfile: 'http://localhost:3000/voc/?show=linktypes',
+      namespaceURI: 'http://localhost:3000/voc/?show=linktypes',
       applicationIdentifiers: [
         {
           title: 'National Livestock Identification System ID (NLISID)',
@@ -112,7 +116,7 @@ describe('Full flow (e2e)', () => {
             defaultContext: true,
             fwqs: false,
             active: true,
-            linkType: 'gs1:certificationInfo',
+            linkType: gs1 + ':certificationInfo',
             ianaLanguage: 'en',
             context: 'au',
             title: 'Certification Information',
@@ -126,7 +130,7 @@ describe('Full flow (e2e)', () => {
             defaultContext: true,
             fwqs: false,
             active: true,
-            linkType: 'gs1:certificationInfo',
+            linkType: gs1 + ':certificationInfo',
             ianaLanguage: 'en',
             context: 'au',
             title: 'Certification Information',
@@ -148,7 +152,7 @@ describe('Full flow (e2e)', () => {
       const gtin = '01/12345678901234';
       const lot = '10/LOT1234';
       const serial = '21/SER5678';
-      const linkType = 'gs1:certificationInfo';
+      const linkType = gs1 + ':certificationInfo';
       const expectedLocation = 'https://example-json.com';
       const expectedLinkHeader = `<${expectedLocation}>; rel="${linkType}"; type="application/json"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="${linkType}"; type="text/html"; hreflang="en"; title="Certification Information", <http://localhost:3000/${gs1}/${gtin}/${lot}/${serial}>; rel="owl:sameAs"`;
 
@@ -168,7 +172,7 @@ describe('Full flow (e2e)', () => {
       const gtin = '01/12345678901234';
       const lot = '10/LOT1234';
       const serial = '21/SER5678';
-      const linkType = 'gs1:certificationInfo';
+      const linkType = gs1 + ':certificationInfo';
       const expectedLocation = 'https://example-html.com';
       const expectedLinkHeader = `<https://example-json.com>; rel="${linkType}"; type="application/json"; hreflang="en"; title="Certification Information", <${expectedLocation}>; rel="${linkType}"; type="text/html"; hreflang="en"; title="Certification Information", <http://localhost:3000/${gs1}/${gtin}/${lot}/${serial}>; rel="owl:sameAs"`;
 
@@ -199,7 +203,7 @@ describe('Full flow (e2e)', () => {
             defaultContext: true,
             fwqs: false,
             active: true,
-            linkType: 'gs1:certificationInfo',
+            linkType: gs1 + ':certificationInfo',
             ianaLanguage: 'en',
             context: 'us',
             title: 'Certification Information',
@@ -221,7 +225,7 @@ describe('Full flow (e2e)', () => {
       const gtin = '01/12345678901234';
       const lot = '10/LOT1234';
       const expectedLocation = 'https://example-html.com';
-      const expectedLinkHeader = `<${expectedLocation}>; rel="gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <http://localhost:3000/${gs1}/${gtin}/${lot}>; rel="owl:sameAs"`;
+      const expectedLinkHeader = `<${expectedLocation}>; rel="${gs1}:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <http://localhost:3000/${gs1}/${gtin}/${lot}>; rel="owl:sameAs"`;
 
       await request(baseUrl)
         .get(`/${gs1}/${gtin}/${lot}`)
@@ -248,7 +252,7 @@ describe('Full flow (e2e)', () => {
             defaultContext: true,
             fwqs: false,
             active: true,
-            linkType: 'gs1:certificationInfo',
+            linkType: gs1 + ':certificationInfo',
             ianaLanguage: 'en',
             context: 'au',
             title: 'Certification Information',
@@ -269,7 +273,7 @@ describe('Full flow (e2e)', () => {
       const gs1 = 'e2e-test-mock-gs1';
       const gtin = '01/12345678901234';
       const expectedLocation = 'https://example-html.com';
-      const expectedLinkHeader = `<${expectedLocation}>; rel="gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <http://localhost:3000/${gs1}/${gtin}>; rel="owl:sameAs"`;
+      const expectedLinkHeader = `<${expectedLocation}>; rel="${gs1}:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <http://localhost:3000/${gs1}/${gtin}>; rel="owl:sameAs"`;
 
       await request(baseUrl)
         .get(`/${gs1}/${gtin}`)
@@ -298,7 +302,7 @@ describe('Full flow (e2e)', () => {
             defaultContext: true,
             fwqs: false,
             active: true,
-            linkType: 'gs1:epcis',
+            linkType: nlisid + ':epcis',
             ianaLanguage: 'en',
             context: 'au',
             title: 'Certification Information',
@@ -318,7 +322,7 @@ describe('Full flow (e2e)', () => {
     it('should get link resolution with nlisid and serial number', async () => {
       const nlisid = 'e2e-test-mock-nlisid';
       const identificationKey = '03/1234567890123456/21/SER1234';
-      const linkType = 'gs1:epcis';
+      const linkType = nlisid + ':epcis';
       const expectedLocation = 'https://example-html.com';
       const expectedLinkHeader = `<${expectedLocation}>; rel="${linkType}"; type="text/html"; hreflang="en"; title="Certification Information", <http://localhost:3000/${nlisid}/${identificationKey}>; rel="owl:sameAs"`;
 

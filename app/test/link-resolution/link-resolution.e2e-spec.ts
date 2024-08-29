@@ -13,6 +13,8 @@ describe('LinkResolutionController (e2e)', () => {
     it('setup namespace and link registration', async () => {
       const identifierDto: IdentifierDto = {
         namespace: gs1,
+        namespaceProfile: '',
+        namespaceURI: '',
         applicationIdentifiers: [
           {
             ai: '01',
@@ -80,7 +82,7 @@ describe('LinkResolutionController (e2e)', () => {
                 defaultContext: true,
                 fwqs: true,
                 active: true,
-                linkType: 'gs1:certificationInfo',
+                linkType: gs1 + ':certificationInfo',
                 ianaLanguage: 'en',
                 context: 'us',
                 title: 'Certification Information',
@@ -94,7 +96,7 @@ describe('LinkResolutionController (e2e)', () => {
                 defaultContext: true,
                 fwqs: true,
                 active: true,
-                linkType: 'gs1:certificationInfo',
+                linkType: gs1 + ':certificationInfo',
                 ianaLanguage: 'en',
                 context: 'us',
                 title: 'Certification Information',
@@ -108,7 +110,7 @@ describe('LinkResolutionController (e2e)', () => {
                 defaultContext: true,
                 fwqs: false,
                 active: true,
-                linkType: 'gs1:certificationInfo',
+                linkType: gs1 + ':certificationInfo',
                 ianaLanguage: 'en',
                 context: 'au',
                 title: 'Certification Information',
@@ -122,7 +124,7 @@ describe('LinkResolutionController (e2e)', () => {
                 defaultContext: true,
                 fwqs: false,
                 active: true,
-                linkType: 'gs1:certificationInfo',
+                linkType: gs1 + ':certificationInfo',
                 ianaLanguage: 'en',
                 context: 'au',
                 title: 'Certification Information',
@@ -136,7 +138,7 @@ describe('LinkResolutionController (e2e)', () => {
                 defaultContext: true,
                 fwqs: false,
                 active: false,
-                linkType: 'gs1:certificationInfo',
+                linkType: gs1 + ':certificationInfo',
                 ianaLanguage: 'en',
                 context: 'gb',
                 title: 'Certification Information',
@@ -154,107 +156,107 @@ describe('LinkResolutionController (e2e)', () => {
       }
     });
 
-    it('when linkType is gs1:certificationInfo language is en, context is US, and mimeType is application/json', async () => {
+    it('when linkType is certificationInfo language is en, context is US, and mimeType is application/json', async () => {
       await request(baseUrl)
-        .get(`/${gs1}/01/09359502000041?linkType=gs1%3AcertificationInfo`)
+        .get(`/${gs1}/01/09359502000041?linkType=${gs1}%3AcertificationInfo`)
         .set('Accept', 'application/json')
         .set('Accept-Language', 'en-US')
         .expect(302)
         .expect(
           'Location',
-          'https://example-json.com?linkType=gs1:certificationInfo',
+          `https://example-json.com?linkType=${gs1}:certificationInfo`,
         )
         .expect(
           'Link',
-          '<https://example-json.com>; rel="gs1:certificationInfo"; type="application/json"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <https://example-json.com>; rel="gs1:certificationInfo"; type="application/json"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <http://localhost:3000/e2e-test-mock-gs1/01/09359502000041>; rel="owl:sameAs"',
+          '<https://example-json.com>; rel="e2e-test-mock-gs1:certificationInfo"; type="application/json"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="e2e-test-mock-gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <https://example-json.com>; rel="e2e-test-mock-gs1:certificationInfo"; type="application/json"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="e2e-test-mock-gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="e2e-test-mock-gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <http://localhost:3000/e2e-test-mock-gs1/01/09359502000041>; rel="owl:sameAs"',
         );
     });
 
-    it('when linkType is gs1:certificationInfo language is en, context is US, and mimeType is text/html', () => {
+    it('when linkType is certificationInfo language is en, context is US, and mimeType is text/html', () => {
       return request(baseUrl)
-        .get(`/${gs1}/01/09359502000041?linkType=gs1%3AcertificationInfo`)
+        .get(`/${gs1}/01/09359502000041?linkType=${gs1}%3AcertificationInfo`)
         .set('Accept', 'text/html')
         .set('Accept-Language', 'en-US')
         .expect(302)
         .expect(
           'Location',
-          'https://example-html.com?linkType=gs1:certificationInfo',
+          `https://example-html.com?linkType=${gs1}:certificationInfo`,
         );
     });
 
-    it('when linkType is gs1:certificationInfo language is en, context is AU, and mimeType is application/json', () => {
+    it('when linkType is certificationInfo language is en, context is AU, and mimeType is application/json', () => {
       return request(baseUrl)
-        .get(`/${gs1}/01/09359502000041?linkType=gs1%3AcertificationInfo`)
+        .get(`/${gs1}/01/09359502000041?linkType=${gs1}%3AcertificationInfo`)
         .set('Accept', 'application/json')
         .set('Accept-Language', 'en-AU')
         .expect(302)
         .expect('Location', 'https://example-json.com');
     });
 
-    it('when linkType is gs1:certificationInfo language is en, context is AU, and mimeType is text/html', () => {
+    it('when linkType is certificationInfo language is en, context is AU, and mimeType is text/html', () => {
       return request(baseUrl)
-        .get(`/${gs1}/01/09359502000041?linkType=gs1%3AcertificationInfo`)
+        .get(`/${gs1}/01/09359502000041?linkType=${gs1}%3AcertificationInfo`)
         .set('Accept', 'text/html')
         .set('Accept-Language', 'en-AU')
         .expect(302)
         .expect('Location', 'https://example-html.com');
     });
 
-    it('when linkType is gs1:certificationInfo language is en, context is US, and mimeType is unknown', () => {
+    it('when linkType is certificationInfo language is en, context is US, and mimeType is unknown', () => {
       return request(baseUrl)
-        .get(`/${gs1}/01/09359502000041?linkType=gs1%3AcertificationInfo`)
+        .get(`/${gs1}/01/09359502000041?linkType=${gs1}%3AcertificationInfo`)
         .set('Accept-Language', 'en-US')
         .expect(302)
         .expect(
           'Location',
-          'https://example-json.com?linkType=gs1:certificationInfo',
+          `https://example-json.com?linkType=${gs1}:certificationInfo`,
         )
         .expect(
           'Link',
-          '<https://example-json.com>; rel="gs1:certificationInfo"; type="application/json"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <https://example-json.com>; rel="gs1:certificationInfo"; type="application/json"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <http://localhost:3000/e2e-test-mock-gs1/01/09359502000041>; rel="owl:sameAs"',
+          '<https://example-json.com>; rel="e2e-test-mock-gs1:certificationInfo"; type="application/json"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="e2e-test-mock-gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <https://example-json.com>; rel="e2e-test-mock-gs1:certificationInfo"; type="application/json"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="e2e-test-mock-gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="e2e-test-mock-gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <http://localhost:3000/e2e-test-mock-gs1/01/09359502000041>; rel="owl:sameAs"',
         );
     });
 
-    it('when linkType is gs1:certificationInfo language is en, context is unknown, and mimeType is unknown', () => {
+    it('when linkType is certificationInfo language is en, context is unknown, and mimeType is unknown', () => {
       return request(baseUrl)
-        .get(`/${gs1}/01/09359502000041?linkType=gs1%3AcertificationInfo`)
+        .get(`/${gs1}/01/09359502000041?linkType=${gs1}%3AcertificationInfo`)
         .set('Accept-Language', 'en')
         .expect(302)
         .expect(
           'Location',
-          'https://example-json.com?linkType=gs1:certificationInfo',
+          `https://example-json.com?linkType=${gs1}:certificationInfo`,
         )
         .expect(
           'Link',
-          '<https://example-json.com>; rel="gs1:certificationInfo"; type="application/json"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <https://example-json.com>; rel="gs1:certificationInfo"; type="application/json"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <http://localhost:3000/e2e-test-mock-gs1/01/09359502000041>; rel="owl:sameAs"',
+          '<https://example-json.com>; rel="e2e-test-mock-gs1:certificationInfo"; type="application/json"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="e2e-test-mock-gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <https://example-json.com>; rel="e2e-test-mock-gs1:certificationInfo"; type="application/json"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="e2e-test-mock-gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="e2e-test-mock-gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <http://localhost:3000/e2e-test-mock-gs1/01/09359502000041>; rel="owl:sameAs"',
         );
     });
 
-    it('when linkType is gs1:certificationInfo language is unknown, context is unknown, and mimeType is unknown', () => {
+    it('when linkType is certificationInfo language is unknown, context is unknown, and mimeType is unknown', () => {
       return request(baseUrl)
-        .get(`/${gs1}/01/09359502000041?linkType=gs1%3AcertificationInfo`)
+        .get(`/${gs1}/01/09359502000041?linkType=${gs1}%3AcertificationInfo`)
         .expect(302)
         .expect(
           'Location',
-          'https://example-json.com?linkType=gs1:certificationInfo',
+          `https://example-json.com?linkType=${gs1}:certificationInfo`,
         )
         .expect(
           'Link',
-          '<https://example-json.com>; rel="gs1:certificationInfo"; type="application/json"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <https://example-json.com>; rel="gs1:certificationInfo"; type="application/json"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <http://localhost:3000/e2e-test-mock-gs1/01/09359502000041>; rel="owl:sameAs"',
+          '<https://example-json.com>; rel="e2e-test-mock-gs1:certificationInfo"; type="application/json"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="e2e-test-mock-gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <https://example-json.com>; rel="e2e-test-mock-gs1:certificationInfo"; type="application/json"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="e2e-test-mock-gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="e2e-test-mock-gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <http://localhost:3000/e2e-test-mock-gs1/01/09359502000041>; rel="owl:sameAs"',
         );
     });
 
     it('when linkType is unknown, language is unknown, context is unknown, and mimeType is unknown', () => {
       return request(baseUrl)
-        .get(`/${gs1}/01/09359502000041?linkType=gs1%3AcertificationInfo`)
+        .get(`/${gs1}/01/09359502000041?linkType=${gs1}%3AcertificationInfo`)
         .expect(302)
         .expect(
           'Location',
-          'https://example-json.com?linkType=gs1:certificationInfo',
+          `https://example-json.com?linkType=${gs1}:certificationInfo`,
         )
         .expect(
           'Link',
-          '<https://example-json.com>; rel="gs1:certificationInfo"; type="application/json"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <https://example-json.com>; rel="gs1:certificationInfo"; type="application/json"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <http://localhost:3000/e2e-test-mock-gs1/01/09359502000041>; rel="owl:sameAs"',
+          '<https://example-json.com>; rel="e2e-test-mock-gs1:certificationInfo"; type="application/json"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="e2e-test-mock-gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <https://example-json.com>; rel="e2e-test-mock-gs1:certificationInfo"; type="application/json"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="e2e-test-mock-gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="e2e-test-mock-gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <http://localhost:3000/e2e-test-mock-gs1/01/09359502000041>; rel="owl:sameAs"',
         );
     });
 
@@ -264,7 +266,7 @@ describe('LinkResolutionController (e2e)', () => {
         .expect(200)
         .expect(
           'Link',
-          '<https://example-json.com>; rel="gs1:certificationInfo"; type="application/json"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <https://example-json.com>; rel="gs1:certificationInfo"; type="application/json"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <http://localhost:3000/e2e-test-mock-gs1/01/09359502000041>; rel="owl:sameAs"',
+          '<https://example-json.com>; rel="e2e-test-mock-gs1:certificationInfo"; type="application/json"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="e2e-test-mock-gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <https://example-json.com>; rel="e2e-test-mock-gs1:certificationInfo"; type="application/json"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="e2e-test-mock-gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="e2e-test-mock-gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <http://localhost:3000/e2e-test-mock-gs1/01/09359502000041>; rel="owl:sameAs"',
         );
 
       expect(JSON.parse(res.text).linkset).not.toBeNull();
@@ -282,21 +284,21 @@ describe('LinkResolutionController (e2e)', () => {
         .expect('Location', 'https://example-json.com');
     });
 
-    it('when linkType is gs1:certificationInfo language is en, context is AU, and mimeType is application/json, the response fwqs is set true', () => {
+    it('when linkType is certificationInfo language is en, context is AU, and mimeType is application/json, the response fwqs is set true', () => {
       return request(baseUrl)
         .get(
-          `/${gs1}/01/09359502000041?linkType=gs1%3AcertificationInfo&query1=1&query2=2`,
+          `/${gs1}/01/09359502000041?linkType=${gs1}%3AcertificationInfo&query1=1&query2=2`,
         )
         .set('Accept', 'application/json')
         .set('Accept-Language', 'en-us')
         .expect(302)
         .expect(
           'Location',
-          'https://example-json.com?linkType=gs1:certificationInfo&query1=1&query2=2',
+          `https://example-json.com?linkType=${gs1}:certificationInfo&query1=1&query2=2`,
         )
         .expect(
           'Link',
-          '<https://example-json.com>; rel="gs1:certificationInfo"; type="application/json"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <https://example-json.com>; rel="gs1:certificationInfo"; type="application/json"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <http://localhost:3000/e2e-test-mock-gs1/01/09359502000041>; rel="owl:sameAs"',
+          '<https://example-json.com>; rel="e2e-test-mock-gs1:certificationInfo"; type="application/json"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="e2e-test-mock-gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <https://example-json.com>; rel="e2e-test-mock-gs1:certificationInfo"; type="application/json"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="e2e-test-mock-gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <https://example-html.com>; rel="e2e-test-mock-gs1:certificationInfo"; type="text/html"; hreflang="en"; title="Certification Information", <http://localhost:3000/e2e-test-mock-gs1/01/09359502000041>; rel="owl:sameAs"',
         );
     });
   });

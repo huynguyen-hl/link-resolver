@@ -212,6 +212,8 @@ describe('IdentifierManagementController', () => {
         },
         {
           namespace: 'test-namespace2',
+          namespaceURI: 'https://namespace2.uri/voc',
+          namespaceProfile: 'https://namespace2.uri/voc/?show=linktypes',
           applicationIdentifiers: [
             {
               ai: '02',

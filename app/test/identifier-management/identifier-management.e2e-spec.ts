@@ -14,7 +14,8 @@ describe('IdentifierManagementController (e2e)', () => {
     it('should create list of application identifiers for the namespace successfully', async () => {
       const identifierDto: IdentifierDto = {
         namespace: gs1,
-
+        namespaceProfile: '',
+        namespaceURI: '',
         applicationIdentifiers: [
           {
             ai: '01',
@@ -81,12 +82,10 @@ describe('IdentifierManagementController (e2e)', () => {
     it('should create list of application identifiers for the existing namespace successfully', async () => {
       const identifierDtoEmpty: IdentifierDto = {
         namespace: 'gs1',
-
         applicationIdentifiers: [],
       };
       const identifierDto: IdentifierDto = {
         namespace: gs1,
-
         applicationIdentifiers: [
           {
             ai: '01',
@@ -156,7 +155,6 @@ describe('IdentifierManagementController (e2e)', () => {
     it('should override list of application identifiers for the namespace with existing application identifiers', async () => {
       const initialDto: IdentifierDto = {
         namespace: gs1,
-
         applicationIdentifiers: [
           {
             ai: '01',
@@ -171,7 +169,6 @@ describe('IdentifierManagementController (e2e)', () => {
       };
       const overrideDto: IdentifierDto = {
         namespace: gs1,
-
         applicationIdentifiers: [
           {
             ai: '01',
@@ -241,7 +238,6 @@ describe('IdentifierManagementController (e2e)', () => {
     it('should successfully create a list of application identifiers without extra fields when the request payload contains extra fields', async () => {
       const identifierDto: IdentifierDto = {
         namespace: gs1,
-
         applicationIdentifiers: [
           {
             ai: '01',
@@ -313,10 +309,78 @@ describe('IdentifierManagementController (e2e)', () => {
         .expect(HttpStatus.OK);
     });
 
+    it('should create list of application identifiers with namespaceURI and namespaceProfile qualifiers successfully', async () => {
+      const identifierDto: IdentifierDto = {
+        namespace: gs1,
+        namespaceURI: 'http://gs1.org/voc/',
+        namespaceProfile: 'https://www.gs1.org/voc/?show=linktypes',
+        applicationIdentifiers: [
+          {
+            ai: '01',
+            shortcode: 'gtin',
+            type: 'I',
+            title: 'Global Trade Item Number (GTIN)',
+            label: 'GTIN',
+            regex: '(\\d{12,14}|\\d{8})',
+            qualifiers: ['22', '10', '21'],
+          },
+          {
+            ai: '10',
+            shortcode: 'lot',
+            type: 'Q',
+            title: 'Batch or lot number',
+            label: 'BATCH/LOT',
+            regex:
+              '([\\x21-\\x22\\x25-\\x2F\\x30-\\x39\\x41-\\x5A\\x5F\\x61-\\x7A]{0,20})',
+          },
+          {
+            ai: '21',
+            shortcode: 'ser',
+            type: 'Q',
+            title: 'Serial number',
+            label: 'SERIAL',
+            regex:
+              '([\\x21-\\x22\\x25-\\x2F\\x30-\\x39\\x41-\\x5A\\x5F\\x61-\\x7A]{0,20})',
+          },
+          {
+            ai: '22',
+            shortcode: 'cpv',
+            type: 'Q',
+            title: 'Consumer product variant',
+            label: 'CPV',
+            regex:
+              '([\\x21-\\x22\\x25-\\x2F\\x30-\\x39\\x41-\\x5A\\x5F\\x61-\\x7A]{0,20})',
+          },
+        ],
+      };
+      const res = await request(baseUrl)
+        .post('/api/identifiers')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
+        .send(identifierDto)
+        .expect(HttpStatus.OK);
+
+      expect(res.body).toEqual({
+        message: 'Application identifier upserted successfully',
+      });
+
+      const response = await request(baseUrl)
+        .get('/api/identifiers')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
+        .query({ namespace: identifierDto.namespace })
+        .expect(HttpStatus.OK);
+      expect(response.body).toMatchObject(identifierDto);
+
+      // Cleanup;
+      await request(baseUrl)
+        .delete('/api/identifiers')
+        .set('Authorization', `Bearer ${process.env.API_KEY}`)
+        .query({ namespace: identifierDto.namespace })
+        .expect(HttpStatus.OK);
+    });
+
     it('should not create list of application identifiers with missing required fields', async () => {
       const identifierDto = {
         namespace: gs1,
-
         applicationIdentifiers: [
           {
             ai: '01',
@@ -379,7 +443,6 @@ describe('IdentifierManagementController (e2e)', () => {
     it('should return 400 for empty string fields', async () => {
       const invalidIdentifierWithEmptyStrings: IdentifierDto = {
         namespace: '',
-
         applicationIdentifiers: [
           {
             title: '',
@@ -432,7 +495,6 @@ describe('IdentifierManagementController (e2e)', () => {
     it('should not create list of application identifiers with invalid application identifier type', async () => {
       const identifierDto: IdentifierDto = {
         namespace: gs1,
-
         applicationIdentifiers: [
           {
             ai: '01',
@@ -462,7 +524,6 @@ describe('IdentifierManagementController (e2e)', () => {
     it('should not create list of application identifiers with qualifiers not appearing in the list of application identifiers', async () => {
       const identifierDto: IdentifierDto = {
         namespace: gs1,
-
         applicationIdentifiers: [
           {
             ai: '01',
@@ -492,7 +553,6 @@ describe('IdentifierManagementController (e2e)', () => {
     it('should not create list of application identifiers with invalid regex pattern', async () => {
       const identifierDto: IdentifierDto = {
         namespace: gs1,
-
         applicationIdentifiers: [
           {
             ai: '01',
@@ -524,7 +584,6 @@ describe('IdentifierManagementController (e2e)', () => {
     it('should retrieve all identifiers successfully', async () => {
       const identifierDto: IdentifierDto = {
         namespace: gs1,
-
         applicationIdentifiers: [
           {
             ai: '01',
@@ -539,7 +598,6 @@ describe('IdentifierManagementController (e2e)', () => {
       };
       const secondIdentifierDto: IdentifierDto = {
         namespace: integritySystems,
-
         applicationIdentifiers: [
           {
             ai: '01',
@@ -591,7 +649,6 @@ describe('IdentifierManagementController (e2e)', () => {
     it('should retrieve the identifier for the namespace successfully', async () => {
       const identifierDto: IdentifierDto = {
         namespace: gs1,
-
         applicationIdentifiers: [
           {
             ai: '01',
@@ -644,7 +701,6 @@ describe('IdentifierManagementController (e2e)', () => {
     it('should delete the created identifier', async () => {
       const identifierDto: IdentifierDto = {
         namespace: gs1,
-
         applicationIdentifiers: [
           {
             ai: '01',

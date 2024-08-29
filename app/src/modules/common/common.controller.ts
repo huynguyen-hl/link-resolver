@@ -2,6 +2,7 @@ import { Controller, Get, Query, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { Public } from '../../common/decorators/public.decorator';
 import { CommonService } from './common.service';
+import { ApiQuery } from '@nestjs/swagger';
 
 @Controller()
 export class CommonController {
@@ -16,6 +17,16 @@ export class CommonController {
 
   @Get('voc')
   @Public()
+  @ApiQuery({
+    name: 'show',
+    required: false,
+    description:
+      'The namespace of the identifier to retrieve. If not provided, all identifiers are returned.',
+    schema: {
+      type: 'string',
+      example: 'linktypes',
+    },
+  })
   getVoc(@Query('show') show: string, @Res() res: Response) {
     if (show && show.toLowerCase() === 'linktypes') {
       return res.json(this.commonService.getLinkTypes());

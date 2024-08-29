@@ -8,7 +8,6 @@ import { ConfigModule } from '@nestjs/config';
 describe('LinkRegistrationService', () => {
   let service: LinkRegistrationService;
   let repositoryProvider: IRepositoryProvider;
-  let identifierManagementService: IdentifierManagementService;
 
   beforeEach(async () => {
     // Creates a testing module for the LinkRegistrationService.
@@ -58,9 +57,6 @@ describe('LinkRegistrationService', () => {
     // Get the LinkRegistrationService and the RepositoryProvider instance from the testing module.
     service = module.get<LinkRegistrationService>(LinkRegistrationService);
     repositoryProvider = module.get<IRepositoryProvider>('RepositoryProvider');
-    identifierManagementService = module.get<IdentifierManagementService>(
-      IdentifierManagementService,
-    );
   });
 
   it('should be defined', () => {
@@ -125,56 +121,6 @@ describe('LinkRegistrationService', () => {
 
       await expect(service.create(payload)).rejects.toThrow(
         'Missing configuration for RESOLVER_DOMAIN',
-      );
-    });
-
-    it('should throw an exception if the linkTypeVocDomain configuration is missing', async () => {
-      const payload = {
-        namespace: 'testNamespace',
-        identificationKeyType: '01',
-        identificationKey: 'testKey',
-        itemDescription: 'testDescription',
-        qualifierPath: '10/12345678901234567890',
-        active: true,
-        responses: [],
-      };
-      jest.spyOn(service['configService'], 'get').mockImplementation((key) => {
-        if (key === 'RESOLVER_DOMAIN') {
-          return 'testResolverDomain';
-        }
-        return undefined;
-      });
-
-      jest
-        .spyOn(identifierManagementService, 'getIdentifier')
-        .mockResolvedValue({
-          namespace: 'validNamespace',
-          namespaceProfile: '',
-          namespaceURI: '',
-          applicationIdentifiers: [
-            {
-              title: 'Global Trade Item Number (GTIN)',
-              label: 'GTIN',
-              shortcode: 'gtin',
-              ai: '01',
-              type: 'I',
-              qualifiers: ['10'],
-              regex: '(\\d{12,14}|\\d{8})',
-            },
-            {
-              title: 'Batch or Lot Number',
-              label: 'BATCH/LOT',
-              shortcode: 'lot',
-              ai: '10',
-              type: 'Q',
-              regex:
-                '([\\x21-\\x22\\x25-\\x2F\\x30-\\x39\\x41-\\x5A\\x5F\\x61-\\x7A]{0,20})',
-            },
-          ],
-        });
-
-      await expect(service.create(payload)).rejects.toThrow(
-        'Missing configuration for LINK_TYPE_VOC_DOMAIN',
       );
     });
   });

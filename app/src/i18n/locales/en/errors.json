@@ -32,5 +32,7 @@
   "invalid_qualifier_value": "Qualifier value '{value}' does not match regex '{regex}'",
   "qualifier_not_in_primary_ai": "Qualifier '{qualifier}' not found in the primary application identifier {shortcode} ({ai})",
   "identifier_not_found": "Identifier not found",
-  "invalid_api_key": "Invalid API Key"
+  "invalid_api_key": "Invalid API Key",
+  "invalid_link_type": "Invalid link type '{linkType}'",
+  "invalid_namespace_prefix": "Invalid namespace prefix: '{prefix}'. Expected: '{namespace}'"
 }

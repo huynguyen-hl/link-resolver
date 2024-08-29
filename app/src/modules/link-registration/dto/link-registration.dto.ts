@@ -11,10 +11,7 @@ import {
   Matches,
   ValidateNested,
 } from 'class-validator';
-import {
-  mockLinkTypes,
-  mockMimeTypes,
-} from '../constants/link-registration.constants';
+import { mockMimeTypes } from '../constants/link-registration.constants';
 
 export class Response {
   @ApiProperty({
@@ -46,12 +43,10 @@ export class Response {
   active: boolean;
 
   @ApiProperty({
-    enum: mockLinkTypes,
     description: 'Link type',
     example: 'gs1:certificationInfo',
   })
   @IsString()
-  @IsIn(mockLinkTypes)
   linkType: string;
 
   @ApiProperty({

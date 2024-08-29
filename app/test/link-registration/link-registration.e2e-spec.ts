@@ -13,6 +13,8 @@ describe('LinkResolutionController (e2e)', () => {
   describe('/api/resolver (POST)', () => {
     const createIdentifierDto = (): IdentifierDto => ({
       namespace: gs1,
+      namespaceProfile: '',
+      namespaceURI: '',
       applicationIdentifiers: [
         {
           ai: '01',
@@ -94,7 +96,7 @@ describe('LinkResolutionController (e2e)', () => {
               defaultContext: true,
               fwqs: false,
               active: true,
-              linkType: 'gs1:certificationInfo',
+              linkType: gs1 + ':certificationInfo',
               ianaLanguage: 'en',
               context: 'au',
               title: 'Certification Information',
@@ -129,7 +131,7 @@ describe('LinkResolutionController (e2e)', () => {
               defaultContext: true,
               fwqs: false,
               active: true,
-              linkType: 'gs1:certificationInfo',
+              linkType: gs1 + ':certificationInfo',
               ianaLanguage: 'en',
               context: 'au',
               title: 'Certification Information',
@@ -886,13 +888,14 @@ describe('LinkResolutionController (e2e)', () => {
         })
         .set('Accept', 'application/json')
         .set('Authorization', `Bearer ${process.env.API_KEY}`)
-        .expect(400)
+        .expect(404)
         .expect((res) => {
           expect(res.body.path).toBe('/api/resolver');
           expect(res.body.errors).toEqual([
             {
-              field: 'responses.0.linkType',
-              message: 'linkType is not in the list of allowed values',
+              field: 'linkType',
+              message:
+                "Invalid namespace prefix: 'invalid'. Expected: 'e2e-test-mock-gs1'",
             },
           ]);
         });

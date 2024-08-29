@@ -120,4 +120,9 @@ export const defaultLinkTypes = {
     description:
       'A link to a tutorial or set of tutorials, such as online classes, how-to videos etc.',
   },
+  certificationInfo: {
+    title: 'Certification information',
+    description:
+      'A link to information about certifications that the product has.',
+  },
 };
