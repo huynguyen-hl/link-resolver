@@ -48,8 +48,7 @@ jobs:
       - name: Build and Push Local Image
         uses: docker/build-push-action@v5
         with:
-          # push: ${{ startsWith(github.ref, 'refs/tags/') }}
-          push: true
+          push: ${{ startsWith(github.ref, 'refs/tags/') }}
           tags: ${{ steps.meta.outputs.tags }}-local
           labels: ${{ steps.meta.outputs.labels }}
           context: app
@@ -58,8 +57,7 @@ jobs:
       - name: Build and Push Serverless Image
         uses: docker/build-push-action@v5
         with:
-          # push: ${{ startsWith(github.ref, 'refs/tags/') }}
-          push: true
+          push: ${{ startsWith(github.ref, 'refs/tags/') }}
           tags: ${{ steps.meta.outputs.tags }}-serverless
           labels: ${{ steps.meta.outputs.labels }}
           context: app
