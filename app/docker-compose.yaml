@@ -8,6 +8,7 @@ services:
     ports:
       - '3000:3000'
     environment:
+      - NODE_ENV=dev
       - MINIO_ENDPOINT=minio
       - MINIO_PORT=9000
       - MINIO_USE_SSL=false

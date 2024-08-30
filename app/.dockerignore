@@ -1,0 +1,17 @@
+.DS_Store
+minio_data
+coverage
+.env
+test
+.dockerignore
+Dockerfile
+Dockerfile.serverless
+docker-compose.yml
+.eslintrc.js
+.git
+.gitignore
+.prettierrc
+nodemon.json
+README.md
+report.json
+

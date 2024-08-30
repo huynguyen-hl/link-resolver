@@ -24,6 +24,7 @@ import { CommonModule } from './modules/common/common.module';
     }),
     RepositoryModule.forRoot({
       provider: RepositoryProvider.Minio,
+      region: process.env.MINIO_REGION,
       endPoint: process.env.MINIO_ENDPOINT,
       port: +process.env.MINIO_PORT,
       useSSL: process.env.MINIO_USE_SSL === 'true',

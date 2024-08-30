@@ -1,3 +1,4 @@
+import * as _ from 'lodash';
 import {
   CreateLinkRegistrationDto,
   Response,
@@ -70,10 +71,10 @@ const constructLinkTargetObjects = (
   const sortedResponses = postprocessResponses(responses);
 
   //   Group responses by linkType
-  const groupedResponses = Object.groupBy(
+  const groupedResponses = _.groupBy(
     sortedResponses,
     (res) => res.linkType,
-  );
+  ) as Record<string, Response[]>;
 
   return Object.values(groupedResponses).reduce((acc, responses) => {
     const response = responses[0];
@@ -83,7 +84,7 @@ const constructLinkTargetObjects = (
     );
 
     // Group responses by mimeType, targetUrl, and context
-    const groupResponsesByMimeTypeTargetUrlAndContext = Object.groupBy(
+    const groupResponsesByMimeTypeTargetUrlAndContext = _.groupBy(
       responses,
       (res) => `${res.targetUrl}-${res.mimeType}-${res.context}`,
     );
@@ -92,7 +93,7 @@ const constructLinkTargetObjects = (
 
     // Construct the link target objects
     Object.values(groupResponsesByMimeTypeTargetUrlAndContext).map(
-      (groupedResponses) => {
+      (groupedResponses: any) => {
         const firstGroupedResponse = groupedResponses[0];
         const href = firstGroupedResponse.targetUrl;
         const type =
@@ -107,7 +108,7 @@ const constructLinkTargetObjects = (
 
         // Remove duplicates on language
         titles = Object.values(
-          Object.groupBy(titles, (title) => title.language),
+          _.groupBy(titles, (title) => title.language),
         ).map((title) => title[0]);
         const hreflang = titles.map((title) => title.language);
 
