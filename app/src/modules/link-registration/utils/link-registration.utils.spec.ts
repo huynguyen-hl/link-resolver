@@ -17,7 +17,7 @@ describe('getObjectName', () => {
     const result = getObjectName(payload, aiCode);
 
     expect(result).toBe(
-      '/testnamespace/ABC123/testidentificationKey/10/12345678901234567890.json',
+      'testnamespace/ABC123/testidentificationKey/10/12345678901234567890.json',
     );
   });
 
@@ -35,6 +35,6 @@ describe('getObjectName', () => {
 
     const result = getObjectName(payload, aiCode);
 
-    expect(result).toBe('/testnamespace/ABC123/testidentificationKey.json');
+    expect(result).toBe('testnamespace/ABC123/testidentificationKey.json');
   });
 });

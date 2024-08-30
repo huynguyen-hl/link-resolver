@@ -11,8 +11,8 @@ export function getObjectName(
 ): string {
   const path =
     payload.qualifierPath && payload.qualifierPath !== '/'
-      ? `/${payload.namespace}/${aiCode}/${payload.identificationKey}${payload.qualifierPath}.json`
-      : `/${payload.namespace}/${aiCode}/${payload.identificationKey}.json`;
+      ? `${payload.namespace}/${aiCode}/${payload.identificationKey}${payload.qualifierPath}.json`
+      : `${payload.namespace}/${aiCode}/${payload.identificationKey}.json`;
 
   return path;
 }
