@@ -3,7 +3,7 @@ import {
   createParamDecorator,
   ExecutionContext,
 } from '@nestjs/common';
-import * as Negotiator from 'negotiator';
+import Negotiator from 'negotiator';
 import { LinkResolutionDto } from '../dto/link-resolution.dto';
 import { IanalanguageContext } from '../interfaces/link-resolution.interface';
 import { constructQualifiersFromQualifierPath } from '../../shared/utils/uri.utils';

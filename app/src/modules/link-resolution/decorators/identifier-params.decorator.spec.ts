@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { LinkResolutionDto } from '../dto/link-resolution.dto';
-import * as Negotiator from 'negotiator';
+import Negotiator from 'negotiator';
 import { IdentifierParams } from './identifier-params.decorator';
 import { ROUTE_ARGS_METADATA } from '@nestjs/common/constants';
 import * as httpMock from 'node-mocks-http';

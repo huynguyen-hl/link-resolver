@@ -1,5 +1,5 @@
 import { HttpStatus } from '@nestjs/common';
-import * as request from 'supertest';
+import request from 'supertest';
 import { IdentifierDto } from '../../src/modules/identifier-management/dto/identifier.dto';
 
 const baseUrl = process.env.RESOLVER_DOMAIN;

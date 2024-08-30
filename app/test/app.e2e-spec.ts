@@ -1,5 +1,5 @@
 import { HttpStatus } from '@nestjs/common';
-import * as request from 'supertest';
+import request from 'supertest';
 
 const baseUrl = process.env.RESOLVER_DOMAIN;
 

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import * as request from 'supertest';
+import request from 'supertest';
 import { HttpStatus } from '@nestjs/common';
 import { IdentifierDto } from '../../src/modules/identifier-management/dto/identifier.dto';
 import { defaultLinkTypes } from '../../src/modules/common/data/default-link-types';
