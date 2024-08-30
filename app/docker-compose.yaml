@@ -17,10 +17,9 @@ services:
       - MINIO_BUCKET_NAME=idr-bucket
       - IDENTIFIER_PATH=identifiers
       - API_KEY=test123
-      - APP_ENDPOINT=http://localhost:3000
-      - APP_NAME=IDR
       - RESOLVER_DOMAIN=http://localhost:3000
-      - LINK_TYPE_VOC_DOMAIN=http://localhost:3000/voc
+      - APP_NAME=IDR
+      - NODE_ENV=development
     depends_on:
       - minio
 

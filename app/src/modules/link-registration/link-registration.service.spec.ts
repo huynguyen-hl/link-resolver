@@ -4,10 +4,12 @@ import { LinkRegistrationService } from './link-registration.service';
 import { IRepositoryProvider } from 'src/repository/providers/provider.repository.interface';
 import { IdentifierManagementService } from '../identifier-management/identifier-management.service';
 import { ConfigModule } from '@nestjs/config';
+import { IdentifierDto } from '../identifier-management/dto/identifier.dto';
 
 describe('LinkRegistrationService', () => {
   let service: LinkRegistrationService;
   let repositoryProvider: IRepositoryProvider;
+  let identifierService: IdentifierManagementService;
 
   beforeEach(async () => {
     // Creates a testing module for the LinkRegistrationService.
@@ -57,6 +59,9 @@ describe('LinkRegistrationService', () => {
     // Get the LinkRegistrationService and the RepositoryProvider instance from the testing module.
     service = module.get<LinkRegistrationService>(LinkRegistrationService);
     repositoryProvider = module.get<IRepositoryProvider>('RepositoryProvider');
+    identifierService = module.get<IdentifierManagementService>(
+      IdentifierManagementService,
+    );
   });
 
   it('should be defined', () => {
@@ -74,6 +79,42 @@ describe('LinkRegistrationService', () => {
         active: true,
         responses: [],
       };
+
+      jest
+        .spyOn(service['configService'], 'get')
+        .mockReturnValue('testResolverDomain');
+
+      const result = await service.create(payload);
+
+      expect(result).toEqual({
+        message: 'successes.register_link_resolver_successfully',
+      });
+    });
+
+    it('should save the registration with default link type voc', async () => {
+      const payload = {
+        namespace: 'testNamespace',
+        identificationKeyType: '01',
+        identificationKey: 'testKey',
+        itemDescription: 'testDescription',
+        qualifierPath: '10/12345678901234567890',
+        active: true,
+        responses: [],
+      };
+
+      const mockIdentifier: IdentifierDto = {
+        namespace: 'gs1',
+        namespaceURI: '',
+        namespaceProfile: '',
+        applicationIdentifiers: [],
+      };
+
+      jest
+        .spyOn(
+          identifierService,
+          'getIdentifier' as keyof IdentifierManagementService,
+        )
+        .mockResolvedValue(mockIdentifier);
 
       jest
         .spyOn(service['configService'], 'get')

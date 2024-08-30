@@ -1,5 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { I18nService } from 'nestjs-i18n';
 
 import {
   ResolverConfig,
@@ -7,12 +8,14 @@ import {
 } from './interface/common.interface';
 import { IdentifierManagementService } from '../identifier-management/identifier-management.service';
 import { defaultLinkTypes } from './data/default-link-types';
+import { GeneralErrorException } from '../../common/exceptions/general-error.exception';
 
 @Injectable()
 export class CommonService {
   constructor(
     private readonly configService: ConfigService,
     private readonly identifierService: IdentifierManagementService,
+    private readonly i18n: I18nService,
   ) {}
 
   /*
@@ -39,11 +42,13 @@ export class CommonService {
   async transformResolverData(): Promise<ResolverConfig> {
     const appName = this.configService.get('APP_NAME');
     if (!appName) {
+      // TODO: refactor to use a custom exception
       throw new Error('APP_NAME is not defined');
     }
 
     const appEndpoint = this.configService.get('RESOLVER_DOMAIN');
     if (!appEndpoint) {
+      // TODO: refactor to use a custom exception
       throw new Error('RESOLVER_DOMAIN is not defined');
     }
 
@@ -77,5 +82,15 @@ export class CommonService {
   getLinkTypes() {
     const defaultLinkTypesPath = defaultLinkTypes;
     return defaultLinkTypesPath;
+  }
+
+  getSpecificLinkType(linkType: string) {
+    const linkTypes = this.getLinkTypes();
+    if (!linkTypes[linkType]) {
+      throw new GeneralErrorException(this.i18n, HttpStatus.BAD_REQUEST, {
+        key: 'invalid_voc_linktype',
+      });
+    }
+    return linkTypes[linkType];
   }
 }

@@ -109,7 +109,7 @@ export const defaultLinkTypes = {
   productSustainabilityInfo: {
     title: 'sustainability and recycling',
     description:
-      'Information about the productís sustainability of manufacture, recycling information etc.',
+      'Information about the products sustainability of manufacture, recycling information etc.',
   },
   traceability: {
     title: 'Traceability information',

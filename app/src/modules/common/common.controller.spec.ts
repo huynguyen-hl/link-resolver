@@ -17,6 +17,9 @@ describe('CommonController', () => {
           useValue: {
             transformResolverData: jest.fn().mockResolvedValue('mocked data'),
             getLinkTypes: jest.fn().mockReturnValue('mocked link types'),
+            getSpecificLinkType: jest
+              .fn()
+              .mockReturnValue('mocked specific link types'),
           },
         },
       ],
@@ -45,5 +48,11 @@ describe('CommonController', () => {
     const res = { json: jest.fn(), redirect: jest.fn() } as unknown as Response;
     commonController.getVoc('not linktypes', res);
     expect(res.redirect).toHaveBeenCalledWith('/voc/?show=linktypes');
+  });
+
+  it('should get voc with specific link type', () => {
+    const res = { json: jest.fn() } as unknown as Response;
+    commonController.getLinkType('epcis', res);
+    expect(res.json).toHaveBeenCalledWith('mocked specific link types');
   });
 });

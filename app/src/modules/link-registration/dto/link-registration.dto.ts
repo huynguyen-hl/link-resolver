@@ -29,7 +29,7 @@ export class Response {
   defaultMimeType: boolean;
 
   @ApiProperty({
-    description: 'Default forwared query string',
+    description: 'Default forward query string',
     example: false,
   })
   @IsBoolean()

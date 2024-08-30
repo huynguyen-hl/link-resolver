@@ -49,7 +49,7 @@ export class LinkRegistrationService {
     const linkTypeVocDomain =
       identifier.namespaceURI && identifier.namespaceURI !== ''
         ? identifier.namespaceURI
-        : resolverDomain + '/voc/';
+        : resolverDomain + '/voc';
 
     if (!resolverDomain) {
       throw new Error('Missing configuration for RESOLVER_DOMAIN');

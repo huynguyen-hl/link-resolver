@@ -4,15 +4,20 @@ import { CommonService } from './common.service';
 import { IdentifierManagementService } from '../identifier-management/identifier-management.service';
 import { defaultLinkTypes } from './data/default-link-types';
 import { IdentifierDto } from '../identifier-management/dto/identifier.dto';
+import { I18nService } from 'nestjs-i18n';
+import { GeneralErrorException } from '../../common/exceptions/general-error.exception';
 
 const RESOLVER_DOMAIN = 'http://localhost:3000';
 const APP_NAME = 'Test App';
+
+const mockI18nService = {
+  translate: jest.fn().mockResolvedValue('translated message'),
+};
 
 describe('CommonService Success Cases', () => {
   let service: CommonService;
   let configService: ConfigService;
   let identifierService: IdentifierManagementService;
-
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -33,6 +38,7 @@ describe('CommonService Success Cases', () => {
             }),
           },
         },
+        { provide: I18nService, useValue: mockI18nService },
       ],
     }).compile();
 
@@ -134,6 +140,12 @@ describe('CommonService Success Cases', () => {
     expect(result).toEqual(defaultLinkTypes);
   });
 
+  it('should get specific link type', () => {
+    const linkType = 'epcis';
+    const result = service.getSpecificLinkType(linkType);
+    expect(result).toEqual(defaultLinkTypes[linkType]);
+  });
+
   it('should throw error if APP_NAME is not defined', async () => {
     jest.spyOn(configService, 'get').mockImplementation((key: string) => {
       if (key === 'APP_NAME') return '';
@@ -156,5 +168,18 @@ describe('CommonService Success Cases', () => {
     await expect(service.transformResolverData()).rejects.toThrowError(
       'RESOLVER_DOMAIN is not defined',
     );
+  });
+
+  it('should throw error if link type is not valid', () => {
+    const linkType = 'example';
+    try {
+      service.getSpecificLinkType(linkType);
+    } catch (error) {
+      expect(error).toBeInstanceOf(GeneralErrorException);
+      expect(mockI18nService.translate).toHaveBeenCalledWith(
+        'errors.invalid_voc_linktype',
+        { args: undefined, lang: 'en' },
+      );
+    }
   });
 });

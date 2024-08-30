@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Res } from '@nestjs/common';
+import { Controller, Get, Param, Query, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { Public } from '../../common/decorators/public.decorator';
 import { CommonService } from './common.service';
@@ -33,5 +33,11 @@ export class CommonController {
     } else {
       return res.redirect('/voc/?show=linktypes');
     }
+  }
+
+  @Get('voc/:linktype')
+  @Public()
+  getLinkType(@Param('linktype') linktype: string, @Res() res: Response) {
+    return res.json(this.commonService.getSpecificLinkType(linktype));
   }
 }

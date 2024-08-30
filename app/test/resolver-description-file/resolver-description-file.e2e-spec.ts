@@ -8,7 +8,7 @@ const baseUrl = process.env.RESOLVER_DOMAIN;
 const appName = process.env.APP_NAME;
 const apiKey = process.env.API_KEY;
 
-const environment = process.env.ENVIRONMENT;
+const environment = process.env.NODE_ENV;
 const gs1 = `e2e-${environment}-mock-gs1`;
 
 const namespaceURI = `${baseUrl}/voc/`;
@@ -94,6 +94,14 @@ describe('CommonController (e2e)', () => {
 
       expect(response.body).toEqual(defaultLinkTypes);
     });
+
+    it('GET /voc/:linktype', async () => {
+      const response = await request(baseUrl)
+        .get('/voc/epcis')
+        .expect(HttpStatus.OK);
+
+      expect(response.body).toEqual(defaultLinkTypes.epcis);
+    });
   });
 
   describe('namespace without namespaceProfile and namespaceURI', () => {
@@ -168,6 +176,18 @@ describe('CommonController (e2e)', () => {
         .expect(HttpStatus.OK);
 
       expect(response.body).toEqual(defaultLinkTypes);
+    });
+
+    it('GET /voc/:linktype', async () => {
+      const response = await request(baseUrl)
+        .get('/voc/epcis')
+        .expect(HttpStatus.OK);
+
+      expect(response.body).toEqual(defaultLinkTypes.epcis);
+    });
+
+    it('should throw error when GET /voc/:invalidLinktype', async () => {
+      await request(baseUrl).get('/voc/unknown').expect(HttpStatus.BAD_REQUEST);
     });
   });
 });

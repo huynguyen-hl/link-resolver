@@ -3,7 +3,7 @@ import { IdentifierDto } from 'src/modules/identifier-management/dto/identifier.
 import * as request from 'supertest';
 
 const baseUrl = process.env.RESOLVER_DOMAIN;
-const environment = process.env.ENVIRONMENT;
+const environment = process.env.NODE_ENV;
 const apiKey = process.env.API_KEY;
 
 // Define namespaces for e2e testing to avoid data pollution
@@ -79,7 +79,7 @@ describe('LinkResolutionController (e2e)', () => {
     });
 
     it('should register a new link resolver with valid payload', async () => {
-      return request(baseUrl)
+      request(baseUrl)
         .post('/api/resolver')
         .send({
           namespace: gs1,
@@ -146,6 +146,194 @@ describe('LinkResolutionController (e2e)', () => {
         .expect({
           message: 'Link resolver registered successfully',
         });
+    });
+
+    it('should update resolver with other linkType', async () => {
+      // Define constants for repeated values
+      const identificationKeyType = 'gtin';
+      const identificationKey = '12345678901234';
+      const qualifierPath = '/10/12345678901234567890/22/ABCDE';
+      const namespace = gs1;
+
+      const resolverPayload = (
+        linkType: string,
+        title: string,
+        targetUrl: string,
+      ) => ({
+        namespace,
+        identificationKeyType,
+        identificationKey,
+        itemDescription: 'DPP',
+        qualifierPath,
+        active: true,
+        responses: [
+          {
+            defaultLinkType: true,
+            defaultMimeType: true,
+            defaultIanaLanguage: true,
+            defaultContext: true,
+            fwqs: false,
+            active: true,
+            linkType: `${namespace}:${linkType}`,
+            ianaLanguage: 'en',
+            context: 'au',
+            title,
+            targetUrl,
+            mimeType: 'application/json',
+          },
+        ],
+      });
+
+      const headers = {
+        Accept: 'application/json',
+        Authorization: `Bearer ${process.env.API_KEY}`,
+      };
+
+      // Register first link resolver
+      await request(baseUrl)
+        .post('/api/resolver')
+        .send(
+          resolverPayload(
+            'certificationInfo',
+            'Certification Information',
+            'https://example.com',
+          ),
+        )
+        .set(headers)
+        .expect(201)
+        .expect({
+          message: 'Link resolver registered successfully',
+        });
+
+      // Register second link resolver with a different linkType
+      await request(baseUrl)
+        .post('/api/resolver')
+        .send(
+          resolverPayload(
+            'epcis',
+            'Epcis Information',
+            'https://example-epics.com',
+          ),
+        )
+        .set(headers)
+        .expect(201)
+        .expect({
+          message: 'Link resolver registered successfully',
+        });
+
+      // Verify that both link types are present in the response
+      await request(baseUrl)
+        .get(
+          `/${namespace}/${identificationKeyType}/${identificationKey}${qualifierPath}`,
+        )
+        .set('Accept', 'application/json')
+        .expect(302)
+        .expect(
+          'Link',
+          `<https://example.com>; rel="${namespace}:certificationInfo"; type="application/json"; hreflang="en"; title="Certification Information", <https://example-epics.com>; rel="${namespace}:epcis"; type="application/json"; hreflang="en"; title="Epcis Information", <http://localhost:3000/e2e-test-mock-gs1/01/12345678901234/10/12345678901234567890/22/ABCDE>; rel="owl:sameAs"`,
+        );
+    });
+
+    it('should handle duplicate registration and result in only one link', async () => {
+      // create a new namespace for testing
+      const namespace = `e2e-${environment}-mock-duplicate`;
+      const identifierDto = createIdentifierDto();
+      identifierDto.namespace = namespace;
+      const res = await registerIdentifier(identifierDto);
+
+      expect(res.body).toEqual({
+        message: 'Application identifier upserted successfully',
+      });
+
+      // Define constants for repeated values
+      const identificationKeyType = 'gtin';
+      const identificationKey = '12345678901234';
+      const qualifierPath = '/10/12345678901234567890/22/ABCDE';
+
+      const resolverPayload = (
+        linkType: string,
+        title: string,
+        targetUrl: string,
+      ) => ({
+        namespace,
+        identificationKeyType,
+        identificationKey,
+        itemDescription: 'DPP',
+        qualifierPath,
+        active: true,
+        responses: [
+          {
+            defaultLinkType: true,
+            defaultMimeType: true,
+            defaultIanaLanguage: true,
+            defaultContext: true,
+            fwqs: false,
+            active: true,
+            linkType: `${namespace}:${linkType}`,
+            ianaLanguage: 'en',
+            context: 'au',
+            title,
+            targetUrl,
+            mimeType: 'application/json',
+          },
+        ],
+      });
+
+      const headers = {
+        Accept: 'application/json',
+        Authorization: `Bearer ${process.env.API_KEY}`,
+      };
+
+      // Register the link resolver for the first time
+      await request(baseUrl)
+        .post('/api/resolver')
+        .send(
+          resolverPayload(
+            'certificationInfo',
+            'Certification Information',
+            'https://example.com',
+          ),
+        )
+        .set(headers)
+        .expect(201)
+        .expect({
+          message: 'Link resolver registered successfully',
+        });
+
+      // Register the same link resolver for the second time (duplicate)
+      await request(baseUrl)
+        .post('/api/resolver')
+        .send(
+          resolverPayload(
+            'certificationInfo',
+            'Certification Information',
+            'https://example.com',
+          ),
+        )
+        .set(headers)
+        .expect(201)
+        .expect({
+          message: 'Link resolver registered successfully',
+        });
+
+      // Verify that only one link exists after duplicate registration
+      await request(baseUrl)
+        .get(
+          `/${namespace}/${identificationKeyType}/${identificationKey}${qualifierPath}`,
+        )
+        .set('Accept', 'application/json')
+        .expect(302)
+        .expect(
+          'Link',
+          `<https://example.com>; rel="${namespace}:certificationInfo"; type="application/json"; hreflang="en"; title="Certification Information", <http://localhost:3000/${namespace}/01/12345678901234/10/12345678901234567890/22/ABCDE>; rel="owl:sameAs"`,
+        );
+
+      // cleanup
+      await request(baseUrl)
+        .delete('/api/identifiers')
+        .set('Authorization', `Bearer ${apiKey}`)
+        .query({ namespace })
+        .expect(HttpStatus.OK);
     });
 
     it('should throw an error if namespace is not found', async () => {

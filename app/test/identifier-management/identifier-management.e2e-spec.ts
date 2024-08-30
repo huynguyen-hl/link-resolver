@@ -3,7 +3,7 @@ import * as request from 'supertest';
 import { IdentifierDto } from '../../src/modules/identifier-management/dto/identifier.dto';
 
 const baseUrl = process.env.RESOLVER_DOMAIN;
-const environment = process.env.ENVIRONMENT;
+const environment = process.env.NODE_ENV;
 
 // Define namespaces for e2e testing to avoid data pollution
 const gs1 = `e2e-${environment}-mock-gs1`;

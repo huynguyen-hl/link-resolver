@@ -13,7 +13,7 @@ jobs:
       name: development
     env:
       RESOLVER_DOMAIN: ${{ vars.RESOLVER_DOMAIN }}
-      ENVIRONMENT: ${{ vars.ENVIRONMENT }}
+      NODE_ENV: test
       MINIO_ENDPOINT: ${{ vars.MINIO_ENDPOINT }}
       MINIO_PORT: ${{ vars.MINIO_PORT }}
       MINIO_USE_SSL: ${{ vars.MINIO_USE_SSL }}

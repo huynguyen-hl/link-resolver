@@ -1,9 +1,32 @@
 # Link resolver
 
+## Prerequisites
+
+- [Node.js](https://nodejs.org/en/) version 22.0.0
+
 ## Installation
 
 ```bash
 $ npm install
+```
+
+## Environment variables
+
+Create a `.env.development.local` file in the root directory of the project with the following content in `.env.development.local.example` file:
+
+```bash
+MINIO_ENDPOINT=localhost
+MINIO_PORT=9000
+MINIO_USE_SSL=false
+MINIO_ACCESS_KEY=minioadmin
+MINIO_SECRET_KEY=minioadmin
+MINIO_BUCKET_NAME=idr-bucket
+IDENTIFIER_PATH=identifiers
+RESOLVER_DOMAIN=http://localhost:3000
+LINK_TYPE_VOC_DOMAIN=http://localhost:3000/voc
+API_KEY=test123
+APP_NAME=IDR
+NODE_ENV=development
 ```
 
 ## Running the app
@@ -19,6 +42,11 @@ $ npm run start:dev
 $ npm run start:prod
 ```
 
+## API Specification
+
+For detailed information about our API endpoints, request/response formats, and authentication methods, please refer to our API documentation:
+[http://localhost:3000/api](http://localhost:3000/api)
+
 ## Test
 
 ```bash
@@ -33,19 +61,13 @@ $ npm run test:cov
 
 Pre-requisites to run on local:
 
-- Create `.env.test.local` file with the following content in `.env.test.local.example` file
-- Run the docker-compose file to start the MinIO server (`docker-compose up`)
-- Run the command `npm run start:test` to start the application in test mode
+- Change the environment in the docker-compose.yaml for test environment (Following the .env.test.local.example file)
+- Run the command `docker-compose up --build` to start the application in test mode
 
 ```bash
 # e2e tests
 $ npm run test:e2e
 ```
-
-## API Specification
-
-For detailed information about our API endpoints, request/response formats, and authentication methods, please refer to our API documentation:
-[http://localhost:3000/api](http://localhost:3000/api)
 
 ## MinIO Configuration
 

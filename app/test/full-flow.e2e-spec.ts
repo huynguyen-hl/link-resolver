@@ -3,12 +3,13 @@ import { IdentifierDto } from '../src/modules/identifier-management/dto/identifi
 import * as request from 'supertest';
 
 const baseUrl = process.env.RESOLVER_DOMAIN;
-const environment = process.env.ENVIRONMENT;
+const environment = process.env.NODE_ENV;
 const apiKey = process.env.API_KEY;
 
 // Define namespaces for e2e testing to avoid data pollution
 const gs1 = `e2e-${environment}-mock-gs1`;
 const nlisid = `e2e-${environment}-mock-nlisid`;
+const multiPrimaryIdentifiers = `e2e-mock-multi-primary-identifiers`;
 
 describe('Full flow (e2e)', () => {
   it('should create many namespaces', async () => {
@@ -67,7 +68,7 @@ describe('Full flow (e2e)', () => {
     const identifierNlisidDto2: IdentifierDto = {
       namespace: nlisid,
       namespaceProfile: 'http://localhost:3000/voc/?show=linktypes',
-      namespaceURI: 'http://localhost:3000/voc/?show=linktypes',
+      namespaceURI: 'http://localhost:3000/voc',
       applicationIdentifiers: [
         {
           title: 'National Livestock Identification System ID (NLISID)',
@@ -97,6 +98,48 @@ describe('Full flow (e2e)', () => {
       .expect(HttpStatus.OK);
 
     expect(res2.body).not.toBeNull();
+
+    const identifierGsrnpDto: IdentifierDto = {
+      namespace: multiPrimaryIdentifiers,
+      namespaceProfile: '',
+      namespaceURI: '',
+      applicationIdentifiers: [
+        {
+          ai: '8017',
+          shortcode: 'gsrnp',
+          type: 'I',
+          title: 'Global Service Relation Number - Provider',
+          label: 'GSRN - PROVIDER',
+          regex: '(\\d{18})',
+          qualifiers: ['8019'],
+        },
+        {
+          ai: '8018',
+          shortcode: 'gsrn',
+          type: 'I',
+          title: 'Global Service Relation Number - Recipient',
+          label: 'GSRN - RECIPIENT',
+          regex: '(\\d{18})',
+          qualifiers: ['8019'],
+        },
+        {
+          ai: '8019',
+          shortcode: 'srin',
+          type: 'Q',
+          title: 'Service Relation Instance Number (SRIN)',
+          label: 'SRIN',
+          regex: '(\\d{0,10})',
+        },
+      ],
+    };
+
+    const res3 = await request(baseUrl)
+      .post('/api/identifiers')
+      .set('Authorization', `Bearer ${apiKey}`)
+      .send(identifierGsrnpDto)
+      .expect(HttpStatus.OK);
+
+    expect(res3.body).not.toBeNull();
   });
 
   describe('e2e-test-mock-gs1 namespace ', () => {
@@ -338,17 +381,225 @@ describe('Full flow (e2e)', () => {
     });
   });
 
-  it('delete all namespaces', async () => {
-    await request(baseUrl)
-      .delete('/api/identifiers')
-      .set('Authorization', `Bearer ${process.env.API_KEY}`)
-      .query({ namespace: gs1 })
-      .expect(HttpStatus.OK);
+  describe('e2e-test-mock-multi-primary-identifiers namespace ', () => {
+    it('should register a link with gsrnp and srin in qualifierPath', async () => {
+      const linkRegistrationDto = {
+        namespace: multiPrimaryIdentifiers,
+        identificationKeyType: 'gsrnp',
+        identificationKey: '123456789012345678',
+        itemDescription: 'Product description',
+        qualifierPath: '/8019/1234',
+        active: true,
+        responses: [
+          {
+            defaultLinkType: true,
+            defaultMimeType: true,
+            defaultIanaLanguage: true,
+            defaultContext: true,
+            fwqs: false,
+            active: true,
+            linkType: multiPrimaryIdentifiers + ':certificationInfo',
+            ianaLanguage: 'en',
+            context: 'au',
+            title: 'Certification Information',
+            targetUrl: 'https://example-html.com',
+            mimeType: 'text/html',
+          },
+        ],
+      };
 
+      await request(baseUrl)
+        .post('/api/resolver')
+        .set('Authorization', `Bearer ${apiKey}`) // Use the API key
+        .send(linkRegistrationDto)
+        .expect(HttpStatus.CREATED);
+    });
+
+    it('should get link resolution with gsrnp and srin', async () => {
+      const namespace = multiPrimaryIdentifiers;
+      const identificationKey = '8017/123456789012345678/8019/1234';
+      const linkType = namespace + ':certificationInfo';
+      const expectedLocation = 'https://example-html.com';
+      const expectedLinkHeader = `<${expectedLocation}>; rel="${linkType}"; type="text/html"; hreflang="en"; title="Certification Information", <http://localhost:3000/${namespace}/${identificationKey}>; rel="owl:sameAs"`;
+
+      await request(baseUrl)
+        .get(
+          `/${namespace}/${identificationKey}?linkType=${encodeURIComponent(linkType)}`,
+        )
+        .set('Accept', 'text/html')
+        .set('Accept-Language', 'en-AU')
+        .expect(302)
+        .expect('Location', expectedLocation)
+        .expect('Link', expectedLinkHeader);
+    });
+
+    it('should register a link with gsrn and srin in qualifierPath', async () => {
+      const linkRegistrationDto = {
+        namespace: multiPrimaryIdentifiers,
+        identificationKeyType: 'gsrn',
+        identificationKey: '123456789012345678',
+        itemDescription: 'Product description',
+        qualifierPath: '/8019/1234',
+        active: true,
+        responses: [
+          {
+            defaultLinkType: true,
+            defaultMimeType: true,
+            defaultIanaLanguage: true,
+            defaultContext: true,
+            fwqs: false,
+            active: true,
+            linkType: multiPrimaryIdentifiers + ':certificationInfo',
+            ianaLanguage: 'en',
+            context: 'au',
+            title: 'Certification Information',
+            targetUrl: 'https://example-html.com',
+            mimeType: 'text/html',
+          },
+        ],
+      };
+
+      await request(baseUrl)
+        .post('/api/resolver')
+        .set('Authorization', `Bearer ${apiKey}`) // Use the API key
+        .send(linkRegistrationDto)
+        .expect(HttpStatus.CREATED);
+    });
+
+    it('should get link resolution with gsrn and srin', async () => {
+      const namespace = multiPrimaryIdentifiers;
+      const identificationKey = '8017/123456789012345678/8019/1234';
+      const linkType = namespace + ':certificationInfo';
+      const expectedLocation = 'https://example-html.com';
+      const expectedLinkHeader = `<${expectedLocation}>; rel="${linkType}"; type="text/html"; hreflang="en"; title="Certification Information", <http://localhost:3000/${namespace}/${identificationKey}>; rel="owl:sameAs"`;
+
+      await request(baseUrl)
+        .get(
+          `/${namespace}/${identificationKey}?linkType=${encodeURIComponent(linkType)}`,
+        )
+        .set('Accept', 'text/html')
+        .set('Accept-Language', 'en-AU')
+        .expect(302)
+        .expect('Location', expectedLocation)
+        .expect('Link', expectedLinkHeader);
+    });
+
+    it('should register a link with only gsrnp', async () => {
+      const linkRegistrationDto = {
+        namespace: multiPrimaryIdentifiers,
+        identificationKeyType: 'gsrnp',
+        identificationKey: '123456789012345678',
+        itemDescription: 'Product description',
+        qualifierPath: '/',
+        active: true,
+        responses: [
+          {
+            defaultLinkType: true,
+            defaultMimeType: true,
+            defaultIanaLanguage: true,
+            defaultContext: true,
+            fwqs: false,
+            active: true,
+            linkType: multiPrimaryIdentifiers + ':certificationInfo',
+            ianaLanguage: 'en',
+            context: 'au',
+            title: 'Certification Information',
+            targetUrl: 'https://example-html.com',
+            mimeType: 'text/html',
+          },
+        ],
+      };
+
+      await request(baseUrl)
+        .post('/api/resolver')
+        .set('Authorization', `Bearer ${apiKey}`) // Use the API key
+        .send(linkRegistrationDto)
+        .expect(HttpStatus.CREATED);
+    });
+
+    it('should get link resolution with only gsrnp', async () => {
+      const namespace = multiPrimaryIdentifiers;
+      const identificationKey = '8017/123456789012345678';
+      const linkType = namespace + ':certificationInfo';
+      const expectedLocation = 'https://example-html.com';
+      const expectedLinkHeader = `<${expectedLocation}>; rel="${linkType}"; type="text/html"; hreflang="en"; title="Certification Information", <http://localhost:3000/${namespace}/${identificationKey}>; rel="owl:sameAs"`;
+
+      await request(baseUrl)
+        .get(
+          `/${namespace}/${identificationKey}?linkType=${encodeURIComponent(linkType)}`,
+        )
+        .set('Accept', 'text/html')
+        .set('Accept-Language', 'en-AU')
+        .expect(302)
+        .expect('Location', expectedLocation)
+        .expect('Link', expectedLinkHeader);
+    });
+
+    it('should register a link with only gsrn', async () => {
+      const linkRegistrationDto = {
+        namespace: multiPrimaryIdentifiers,
+        identificationKeyType: 'gsrn',
+        identificationKey: '123456789012345678',
+        itemDescription: 'Product description',
+        qualifierPath: '/',
+        active: true,
+        responses: [
+          {
+            defaultLinkType: true,
+            defaultMimeType: true,
+            defaultIanaLanguage: true,
+            defaultContext: true,
+            fwqs: false,
+            active: true,
+            linkType: multiPrimaryIdentifiers + ':certificationInfo',
+            ianaLanguage: 'en',
+            context: 'au',
+            title: 'Certification Information',
+            targetUrl: 'https://example-html.com',
+            mimeType: 'text/html',
+          },
+        ],
+      };
+
+      await request(baseUrl)
+        .post('/api/resolver')
+        .set('Authorization', `Bearer ${apiKey}`) // Use the API key
+        .send(linkRegistrationDto)
+        .expect(HttpStatus.CREATED);
+    });
+
+    it('should get link resolution with only gsrn', async () => {
+      const namespace = multiPrimaryIdentifiers;
+      const identificationKey = '8017/123456789012345678';
+      const linkType = namespace + ':certificationInfo';
+      const expectedLocation = 'https://example-html.com';
+      const expectedLinkHeader = `<${expectedLocation}>; rel="${linkType}"; type="text/html"; hreflang="en"; title="Certification Information", <http://localhost:3000/${namespace}/${identificationKey}>; rel="owl:sameAs"`;
+
+      await request(baseUrl)
+        .get(
+          `/${namespace}/${identificationKey}?linkType=${encodeURIComponent(linkType)}`,
+        )
+        .set('Accept', 'text/html')
+        .set('Accept-Language', 'en-AU')
+        .expect(302)
+        .expect('Location', expectedLocation)
+        .expect('Link', expectedLinkHeader);
+    });
+  });
+
+  async function deleteNamespace(namespace: string) {
     await request(baseUrl)
       .delete('/api/identifiers')
       .set('Authorization', `Bearer ${process.env.API_KEY}`)
-      .query({ namespace: nlisid })
+      .query({ namespace })
       .expect(HttpStatus.OK);
+  }
+
+  it('delete all namespaces', async () => {
+    const namespaces = [gs1, nlisid, multiPrimaryIdentifiers];
+
+    for (const namespace of namespaces) {
+      await deleteNamespace(namespace);
+    }
   });
 });

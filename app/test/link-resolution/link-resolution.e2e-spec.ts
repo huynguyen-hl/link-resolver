@@ -3,7 +3,7 @@ import { IdentifierDto } from '../../src/modules/identifier-management/dto/ident
 import * as request from 'supertest';
 
 const baseUrl = process.env.RESOLVER_DOMAIN;
-const environment = process.env.ENVIRONMENT;
+const environment = process.env.NODE_ENV;
 
 // Define namespaces for e2e testing to avoid data pollution
 const gs1 = `e2e-${environment}-mock-gs1`;
@@ -309,9 +309,7 @@ describe('LinkResolutionController (e2e)', () => {
         .get(`/${gs1}/01/invalid_id`)
         .expect(400)
         .expect((res) => {
-          expect(JSON.parse(res.text).errors[0].message).toBe(
-            `errors.invalid_value`,
-          );
+          expect(JSON.parse(res.text).errors[0].message).toBe(`Invalid value`);
         });
     });
 
