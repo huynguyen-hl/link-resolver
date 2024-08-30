@@ -33,6 +33,10 @@ export class MinioModule {
   private static async createDataSourceFactory(
     options: RepositoryModuleOptions,
   ) {
+    // TODO: Implement to switch pathStyle between S3 and Minio
+    const pathStyle = !options.endPoint.includes(
+      `s3.${options.region}.amazonaws.com`,
+    );
     const minioClient = new Minio.Client({
       region: options.region,
       endPoint: options.endPoint,
@@ -40,6 +44,7 @@ export class MinioModule {
       useSSL: options.useSSL,
       accessKey: options.accessKey,
       secretKey: options.secretKey,
+      pathStyle: pathStyle,
     });
     const exists = await minioClient.bucketExists(options.bucket);
 
