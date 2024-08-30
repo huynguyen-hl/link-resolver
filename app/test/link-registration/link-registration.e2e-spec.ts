@@ -230,7 +230,7 @@ describe('LinkResolutionController (e2e)', () => {
         .expect(302)
         .expect(
           'Link',
-          `<https://example.com>; rel="${namespace}:certificationInfo"; type="application/json"; hreflang="en"; title="Certification Information", <https://example-epics.com>; rel="${namespace}:epcis"; type="application/json"; hreflang="en"; title="Epcis Information", <http://localhost:3000/e2e-test-mock-gs1/01/12345678901234/10/12345678901234567890/22/ABCDE>; rel="owl:sameAs"`,
+          `<https://example.com>; rel="${namespace}:certificationInfo"; type="application/json"; hreflang="en"; title="Certification Information", <https://example-epics.com>; rel="${namespace}:epcis"; type="application/json"; hreflang="en"; title="Epcis Information", <${baseUrl}/e2e-test-mock-gs1/01/12345678901234/10/12345678901234567890/22/ABCDE>; rel="owl:sameAs"`,
         );
     });
 
@@ -325,7 +325,7 @@ describe('LinkResolutionController (e2e)', () => {
         .expect(302)
         .expect(
           'Link',
-          `<https://example.com>; rel="${namespace}:certificationInfo"; type="application/json"; hreflang="en"; title="Certification Information", <http://localhost:3000/${namespace}/01/12345678901234/10/12345678901234567890/22/ABCDE>; rel="owl:sameAs"`,
+          `<https://example.com>; rel="${namespace}:certificationInfo"; type="application/json"; hreflang="en"; title="Certification Information", <${baseUrl}/${namespace}/01/12345678901234/10/12345678901234567890/22/ABCDE>; rel="owl:sameAs"`,
         );
 
       // cleanup
