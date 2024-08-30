@@ -4,8 +4,6 @@ on:
   push:
     tags:
       - "v*.*.*" # vMAJOR.MINOR.PATCH | v0.0.1
-    branches:
-      - master
 
   workflow_dispatch: # Manually run the workflow
 
