@@ -1,49 +1,45 @@
-# Pyx Llink Resolver
+# Pyx Identity Resolver
 
-This software enables users to resolve identifiers
-and retrieve relevant information
-associated with those identifiers.
+This software offers a flexible solution for managing and resolving links associated with various identifiers like GTINs (Global Trade Item Numbers). 
 
-The core functionality includes link resolution,
-identifier management, and basic link registration.
+It enables identity registry operators and identifier owners to register links to more information about a product, while allowing value chain actors to resolve and access information linked to these identifiers across various identifier schemes, enhancing traceability and data accessibility.
 
-This software complies with:
+## Core Functionality
 
-* complies with ISO 18975 for link resolution
-* supports the GS1 Digital Link standard for resolving GS1 identifiers.
+* Identifier scheme management (registering and configuring permitted identifier schemes for link registration)
+* Link registration and management (allowing registry operators or identifier owners to add and update links to product information)
+* Link resolution (enabling value chain actors to access additional information linked to identifiers across various identifier schemes)
 
-It allows anonymous users to access the service
-and retrieve link information without authentication.
+## Standards Compliance
 
-Authorised users have the ability to register and manage links
-associated with identifiers through an authenticated API endpoint.
+* [ISO 18975](https://www.iso.org/standard/85540.html) for link resolution
+* [RFC 9264](https://datatracker.ietf.org/doc/html/rfc9264) for link sets
+* [GS1 Digital Link](https://ref.gs1.org/standards/digital-link/1.1.3/) for resolving GS1 identifiers
 
-More detailed documentation is in the [document folder](docs/index.md)
+## Access Control
+
+* Anonymous users can resolve link information without authentication
+* Authenticated users via API endpoints can:
+    * Register and manage identifier schemes
+    * Register and manage supported link types for identifier schemes
+    * Register and manage links for specific identifiers within permitted identifier schemes
+
+## Quick Start
+
+To get the Identity Resolver up and running quickly, follow the [Quick Start Guide](./app/README.md).
 
 
-## Developers
+## Contributing
 
-The system can be run locally using docker-compose
-(see `docker-compose.yml`, or run `docker-compose up`)
-
-Notes:
-* Use [Semantic Line Breaks](https://sembr.org/) for text markup
+We use [Semantic Line Breaks](https://sembr.org/) in our documentation. Please follow this convention when contributing to the project.
 
 ## Release and Publishing
 
-This project utilizes two primary workflows to manage the release and publishing process: [Release Tagging](./.github/workflows/release-tagging.yml) and [Package](./.github/workflows/package.yml).
+This project uses two primary workflows:
 
-### Release Tagging Workflow
+1. [Release Tagging](./.github/workflows/release-tagging.yml): Creates version tags based on `app/package.json`.
+2. [Package](./.github/workflows/package.yml): Builds and pushes Docker images to the GitHub Container Registry.
 
-The [Release Tagging](./.github/workflows/release-tagging.yml) workflow file is responsible for creating version tags based on the version specified in the [package.json](./app/package.json) file. When a push is made to the master branch, this workflow checks the version, creates a corresponding tag, and pushes it to the repository. If the tag already exists, the workflow skips creating a new tag.
+We follow [Semantic Versioning](https://semver.org/) with the format `vMAJOR.MINOR.PATCH`.
 
-The version number is incremented based on the following rules: `vMAJOR`.`MINOR`.`PATCH`
-
-Examples: v0.0.1 -> v0.0.2 -> v0.1.0 -> v1.0.0 -> v1.0.1 -> v1.1.0 -> v2.0.0
-
-
-### Package Workflow
-
-The [Package](./.github/workflows/package.yml) workflow is triggered automatically after the [Release Tagging](./.github/workflows/release-tagging.yml) workflow completes or when a version tag is manually created. This workflow builds and pushes a Docker image to the GitHub Container Registry. The image is tagged with the appropriate version, ensuring that the versioning in your Docker images aligns with the application's version in the codebase.
-
-By automating these processes, we ensure consistent versioning and efficient deployment of the application.
+For more detailed information, please refer to the [documentation](docs/index.md).
