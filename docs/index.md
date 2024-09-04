@@ -34,6 +34,8 @@ This system enables value chain actors to resolve and access this information ac
 - [Identifier Management](./features/identifier_management.md)
 - [Link Registration](./features/link_registration.md)
 - [Link Resolution](./features/link_resolution.md)
+- [Environment Variables](./environment_variables.md)
+- [CI](./ci/index.md)
 
 ## Contributing
 
