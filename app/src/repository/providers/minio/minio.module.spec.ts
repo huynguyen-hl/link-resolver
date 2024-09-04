@@ -31,48 +31,7 @@ describe('MinioModule', () => {
     secretKey: 'secretKey',
     bucket: 'bucketName',
     provider: RepositoryProvider.Minio,
-  };
-
-  beforeEach(async () => {
-    moduleRef = await Test.createTestingModule({
-      imports: [MinioModule.forRoot(options)],
-    }).compile();
-
-    minioModule = moduleRef.get<MinioModule>(MinioModule);
-  });
-
-  it('should be defined', () => {
-    expect(minioModule).toBeDefined();
-  });
-
-  it('should provide the MinioProvider', async () => {
-    const minioProvider = await moduleRef.resolve(MinioProvider);
-    expect(minioProvider).toBeDefined();
-  });
-
-  it('should provide the MinioRepository', async () => {
-    const token = getRepositoryToken('Minio');
-    const minioRepository = await moduleRef.resolve(token);
-    expect(minioRepository).toBeDefined();
-  });
-
-  it('should have the correct options', () => {
-    const repositoryModuleOptions = moduleRef.get(REPOSITORY_MODULE_OPTIONS);
-    expect(repositoryModuleOptions).toEqual(options);
-  });
-});
-
-describe('MinioModule for S3', () => {
-  let minioModule: MinioModule;
-  let moduleRef: TestingModule;
-  const options = {
-    endPoint: 'abc.s3.ap-southeast-2.amazonaws.com',
-    useSSL: false,
-    accessKey: 'accessKey',
-    secretKey: 'secretKey',
-    bucket: 'bucketName',
-    region: 'ap-southeast-2',
-    provider: RepositoryProvider.Minio,
+    pathStyle: false,
   };
 
   beforeEach(async () => {

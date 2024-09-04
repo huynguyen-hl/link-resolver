@@ -122,7 +122,7 @@ graph TD
    - For new registrations: If the file doesn't exist, the system constructs a new link set according to [RFC 9264](https://datatracker.ietf.org/doc/html/rfc9264).
    - For updates: If the file exists, the system retrieves the existing link set, merges it with the new data, and constructs an updated link set.
 
-7. **Store in MinIO**: The constructed link set is stored as a JSON file in MinIO using the bucket name environment variable (MINIO_BUCKET_NAME), and the generated file name.
+7. **Store in MinIO**: The constructed link set is stored as a JSON file in MinIO using the bucket name environment variable (OBJECT_STORAGE_BUCKET_NAME), and the generated file name.
 
 8. **Return Success Response**: If storage is successful, a success response is returned to the user.
 

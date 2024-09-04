@@ -1,5 +1,6 @@
 .DS_Store
 minio_data
+object_storage_data
 coverage
 .env
 test

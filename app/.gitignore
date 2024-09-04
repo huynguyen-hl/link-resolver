@@ -4,6 +4,7 @@
 /build
 /minio
 /minio_data
+/object_storage_data
 /documentation
 
 # Logs

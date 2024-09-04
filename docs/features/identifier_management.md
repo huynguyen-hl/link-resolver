@@ -1,10 +1,10 @@
 # Identifier Management
 
-Authorized users can register identifier schemes using namespaces, and application identifiers that will be used in the Identity Digital Resolver (IDR) service. Each identifier scheme is represented by a single JSON object, stored in a separate file where the path is constructed as: `{MINIO_BUCKET_NAME}/{IDENTIFIER_PATH}/{namespace}.json`.
+Authorized users can register identifier schemes using namespaces, and application identifiers that will be used in the Identity Digital Resolver (IDR) service. Each identifier scheme is represented by a single JSON object, stored in a separate file where the path is constructed as: `{OBJECT_STORAGE_BUCKET_NAME}/{IDENTIFIER_PATH}/{namespace}.json`.
 
 ## Identifier Structure
 
-The identifier management system uses a JSON structure to define each namespace and its associated application identifiers. Each identifier scheme is stored in its own file, with the filename constructed as: `{MINIO_BUCKET_NAME}/{IDENTIFIER_PATH}/{namespace}.json`.
+The identifier management system uses a JSON structure to define each namespace and its associated application identifiers. Each identifier scheme is stored in its own file, with the filename constructed as: `{OBJECT_STORAGE_BUCKET_NAME}/{IDENTIFIER_PATH}/{namespace}.json`.
 
 Here's an example of the structure for a single identifier scheme:
 

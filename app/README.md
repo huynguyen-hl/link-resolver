@@ -92,6 +92,22 @@ Create a `.env.development.local` file in the `app` directory of the project by 
 cp .env.development.local.example .env.development.local
 ```
 
+#### Environment Variables Details
+
+- `NODE_ENV`: The environment mode for the application (production, test, development).
+- `OBJECT_STORAGE_ENDPOINT`: The MinIO server endpoint or object storage endpoint.
+- `OBJECT_STORAGE_PORT`: The MinIO server port. If using object storage, not required.
+- `OBJECT_STORAGE_USE_SSL`: Enable or disable SSL for MinIO. By default, it is set to `false`.
+- `OBJECT_STORAGE_ACCESS_KEY`: The MinIO access key or cloud provider access key.
+- `OBJECT_STORAGE_SECRET_KEY`: The MinIO secret key or cloud provider secret key.
+- `OBJECT_STORAGE_BUCKET_NAME`: The MinIO bucket name for storing data.
+- `OBJECT_STORAGE_PATH_STYLE`: Enable or disable path-style requests for MinIO. Set to `false` for cloud providers. Set to `true` if you are using MinIO Gateway. By default, it is set to `true`.
+- `IDENTIFIER_PATH`: The path to the identifier data file.
+- `RESOLVER_DOMAIN`: The domain name for this resolver service.
+- `LINK_TYPE_VOC_DOMAIN`: The domain name for the link type vocabulary.
+- `API_KEY`: The API key for accessing any protected endpoints in this service.
+- `APP_NAME`: The name of this application.
+
 ### MinIO Configuration
 
 The Identity Resolver service uses MinIO as its primary data store.
@@ -103,28 +119,28 @@ In the `docker-compose.yml` file, MinIO's data storage is configured as follows:
 
 ```yaml
 volumes:
-  - ${MINIO_DATA_DIR:-./minio_data}:/data
+  - ${OBJECT_STORAGE_DATA_DIR:-./object_storage_data}:/data
 ```
 
-This configuration uses an environment variable `MINIO_DATA_DIR` if set, otherwise defaulting to `./minio_data` in the current directory.
+This configuration uses an environment variable `OBJECT_STORAGE_DATA_DIR` if set, otherwise defaulting to `./object_storage_data` in the current directory.
 
-To persist MinIO storage outside of the cloned repository, set the `MINIO_DATA_DIR` environment variable before running Docker Compose:
+To persist MinIO storage outside of the cloned repository, set the `OBJECT_STORAGE_DATA_DIR` environment variable before running Docker Compose:
 
 - Unix-based systems (Linux, macOS):
   ```bash
-  export MINIO_DATA_DIR=~/minio/idr/data
+  export OBJECT_STORAGE_DATA_DIR=~/minio/idr/data
   docker-compose up -d
   ```
 
 - Windows (PowerShell):
   ```powershell
-  $env:MINIO_DATA_DIR = "$HOME\minio\idr\data"
+  $env:OBJECT_STORAGE_DATA_DIR = "$HOME\minio\idr\data"
   docker-compose up -d
   ```
 
 - Windows (Command Prompt):
   ```cmd
-  set MINIO_DATA_DIR=%USERPROFILE%\minio\idr\data
+  set OBJECT_STORAGE_DATA_DIR=%USERPROFILE%\minio\idr\data
   docker-compose up -d
   ```
 
@@ -199,7 +215,7 @@ cp .env.test.local.example .env.test.local
 ```yaml
 environment:
   - NODE_ENV=test
-  - MINIO_BUCKET_NAME=idr-bucket-test
+  - OBJECT_STORAGE_BUCKET_NAME=idr-bucket-test
 ```
 
 3. Start the application in test mode:

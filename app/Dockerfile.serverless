@@ -1,9 +1,10 @@
 FROM public.ecr.aws/lambda/nodejs:20
 
 # Set environment variables
-ENV MINIO_URL=http://minio:9000
-ENV MINIO_ROOT_USER=minioadmin
-ENV MINIO_ROOT_PASSWORD=minioadmin
+ENV OBJECT_STORAGE_URL=http://minio:9000
+ENV OBJECT_STORAGE_ROOT_USER=minioadmin
+ENV OBJECT_STORAGE_ROOT_PASSWORD=minioadmin
+ENV OBJECT_STORAGE_PATH_STYLE=false
 
 WORKDIR ${LAMBDA_TASK_ROOT}
 

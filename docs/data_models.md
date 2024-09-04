@@ -4,7 +4,7 @@
 
 The identifier data model represents the identifier schemes registered within the identity resolver.
 
-Each identifier scheme is represented by a single JSON object. We use a combination of environment variables and namespace to construct the key for the object: `{MINIO_BUCKET_NAME}/{IDENTIFIER_PATH}/{namespace}.json`.
+Each identifier scheme is represented by a single JSON object. We use a combination of environment variables and namespace to construct the key for the object: `{OBJECT_STORAGE_BUCKET_NAME}/{IDENTIFIER_PATH}/{namespace}.json`.
 
 The identifier data model serves to:
 
